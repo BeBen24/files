@@ -1,0 +1,16 @@
+body {
+    background-color: #bbbbbb;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+header {
+    margin-top: 50px;
+}
+
+.main-title {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 4em; /* גודל הכותרת */
+    color: #0077ff; /* צבע הטקסט */
+    text-shadow: 2px 2px 4px rgba(0, 162, 255, 0.767); /* צל */
+}
