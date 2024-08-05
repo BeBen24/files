@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiemBloxburg</title>
+    <link href="logo.png" rel="icon">
+    <style>
+  .poll-container {
+    background: rgba(0, 0, 0, 0.322);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+}
+
+.poll-option {
+    margin: 15px 0;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.vote-count {
+    margin-left: 10px;
+    font-weight: bold;
+}
+    </style>
+</head>
+<body>
+
+    <script src="app.js"></script>
+
+
+    <div class="footer-text">
+        האתר עדיין בבנייה
+    </div>
+
+    <div class="video-background">
+        <video autoplay loop muted>
+            <source src="movingbackground.mp4" type="video/mp4"> <!-- החלף בנתיב לסרטון שלך -->
+            סרטון זה לא נתמך על ידי הדפדפן שלך.
+        </video>
+    </div>
+
+
+    <nav class="navbar">
+        <ul class="nav-links">
+            <li><a href="index.html">בית</a></li>
+            <li><a href="questions.html">שאולות נפוצות</a></li>
+            <li><a href="vote.html">סקר</a></li>
+            <li><a href="#contact">בבנייה</a></li>
+        </ul>
+    </nav>
+
+
+
+    <div class="poll-container">
+        <h1>בחר את האופציה המועדפת עליך</h1>
+        <div class="poll-option" id="option1">
+            <button onclick="vote(1)">להשאיר את השרת פעיל</button>
+            <span class="vote-count" id="count1">0</span> :הצבעות
+        </div>
+        <div class="poll-option" id="option2">
+            <button onclick="vote(2)">לכבות את השרת </button>
+            <span class="vote-count" id="count2">0</span> :הצבעות
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+</body>
+</html>
