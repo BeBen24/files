@@ -1,0 +1,118 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #616161;
+}
+
+.navbar {
+    background-color: #333;
+    padding: 15px;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+}
+
+.nav-links li {
+    margin: 0 15px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.nav-links a:hover {
+    background-color: #555;
+    text-shadow: 0 0 20px blue, 0 0 30px blue, 0 0 40px blue;
+    box-shadow: 0 0 10px blue, 0 0 20px blue, 0 0 30px blue; /* זוהר סביב הכפתור */
+}
+
+
+
+
+
+.container {
+    text-align: center;
+    margin-top: 50px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.glow-title {
+    font-size: 48px;
+    color: #333;
+    transition: text-shadow 0.3s ease;
+    position: relative; /* הכנת הכותרת לזוהר */
+    display: inline-block; /* מאפשר לקו להיות סביב הכותרת */
+}
+
+.glow-title:before {
+    content: attr(data-text); /* יוצרים קו זוהר */
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: transparent; /* טקסט שקוף */
+    text-shadow: 0 0 20px blue, 0 0 30px blue, 0 0 40px blue; /* זוהר */
+    z-index: -1; /* מאחורי הכותרת */
+}
+
+.glow-title:hover {
+    text-shadow: 0 0 20px blue, 0 0 30px blue, 0 0 40px blue;
+}
+
+.gallery {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.gallery-item {
+    position: relative; /* הכנת הפריט לזוהר */
+    margin: 10px; /* רווח בין התמונות */
+}
+
+.gallery-image {
+    width: 200px; /* גודל התמונה */
+    height: auto; /* שימור פרופורציות */
+    border-radius: 10px; /* פינות מעוגלות */
+    transition: box-shadow 0.3s ease; /* אפקט מעבר */
+}
+
+.gallery-image:hover {
+    box-shadow: 0 0 20px blue, 0 0 30px blue; /* אפקט זוהר כחול */
+}
+
+.image-text {
+    position: absolute;
+    top: 95%; /* הורד את הטקסט לתחתית התמונה */
+    left: 50%;
+    transform: translate(-50%, -50%); /* מרכז את הטקסט */
+    color: white; /* צבע הטקסט */
+    font-weight: bold; /* כבד */
+    opacity: 0; /* הסתר את הטקסט ברירת מחדל */
+    transition: opacity 0.3s ease, text-shadow 0.3s ease; /* אפקט מעבר */
+}
+
+.gallery-item:hover .image-text {
+    opacity: 1; /* הצג את הטקסט כאשר מעבירים את העכבר */
+    text-shadow: 0 0 20px blue, 0 0 30px blue; /* זוהר כחול */
+}
+
+.sub-title {
+    font-size: 24px; /* גודל הכותרת המשנית */
+    color: #333; /* צבע הכותרת */
+    margin-top: -42px; /* רווח בין הכותרת הראשית לכותרת המשנית */
+    transition: text-shadow 0.3s ease; /* אפקט מעבר */
+}
+
+.sub-title:hover {
+    text-shadow: 0 0 20px blue, 0 0 30px blue; /* זוהר כשמעבירים מעל */
+}
+
