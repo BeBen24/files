@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiemBloxburg</title>
+    <link href="logo.png" rel="icon">
+    <style>
+.wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.container {
+    background-color: #333;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 100%;
+    max-width: 600px;
+    box-sizing: border-box;
+}
+
+h1 {
+    color: #ffffff;
+    margin-bottom: 20px;
+    font-size: 24px;
+    text-align: center;
+}
+
+label{
+    color: #ffffff;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"], input[type="number"], textarea {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+    border-color: #ffffff;
+    outline: none;
+}
+
+textarea {
+    resize: vertical;
+}
+
+button {
+    padding: 12px 20px;
+    background-color: #292929;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+button:hover {
+    background-color: #1f1f1f;
+    box-shadow: 0 0 25px rgb(0, 60, 255), 0 0 50px rgb(0, 60, 255);
+}
+
+button:active {
+    background-color: #202020;
+}
+
+
+
+
+
+
+
+
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.login-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    border: 1px solid #333;
+    border-radius: 5%;
+    padding: 20px;
+    background-color: #333; /* Changed background color */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px; /* Set a width to ensure consistent size */
+}
+
+h2 {
+    margin-top: 0; /* Remove top margin for the title */
+    margin-bottom: 15px; /* Add some space below the title */
+    text-align: center; /* Center the title text */
+    color: white; /* Changed title color to white */
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 5px;
+    color: white; /* Changed label color to white */
+}
+
+input {
+    margin-bottom: 10px;
+    padding: 8px;
+}
+
+button {
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 10px; /* Added margin for spacing */
+    width: 100%; /* Ensure buttons take full width */
+    box-sizing: border-box; /* Include padding and border in element's width and height */
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+
+
+
+
+
+    </style>
+</head>
+<body>
+
+    
+    <div class="footer-text">
+        האתר עדיין בבנייה
+    </div>
+
+    <div class="video-background">
+        <video autoplay loop muted>
+            <source src="movingbackground.mp4" type="video/mp4">
+        </video>
+    </div>
+
+
+
+
+
+
+
+
+    <nav class="navbar">
+        <ul class="nav-links">
+            <li><a href="index.html">בית</a></li>
+            <li><a href="questions.html">שאולות נפוצות</a></li>
+            <li><a href="gallery.html">גלרייה</a></li>
+            <li><a href="staff.html">בחינה לצוות</a></li>
+            <li><a href="packs.html">חבילות</a></li>
+        </ul>
+    </nav>
+  
+
+
+
+    <div class="wrapper">
+        <div class="container">
+            <h1>בבקשה מלא את הפרטים הבאים:</h1>
+            <form id="discordForm">
+                <label for="discordName">מה השם שלך בדיסקורד?</label>
+                <input type="text" id="discordName" name="discordName" placeholder="הכנס את השם שלך בדיסקורד" required>
+
+                <label for="age">בן כמה אתה?</label>
+                <input type="number" id="age" name="age" placeholder="הכנס את גילך" required>
+
+                <label for="activity">כמה פעיל אתה יכול להיות ביום? (בשעות)</label>
+                <input type="number" id="activity" name="activity" placeholder="הכנס את מספר השעות" required>
+
+                <label for="reason">למה אתה רוצה להיות בצוות שלנו?</label>
+                <textarea id="reason" name="reason" placeholder="הכנס את הסיבה שלך" required></textarea>
+
+                <label for="experience">האם יש לך נסיון בתור צוות בשרתים אחרים?</label>
+                <textarea id="experience" name="experience" placeholder="הכנס את הנסיון שלך" required></textarea>
+
+                <button type="submit">שלח תשובה</button>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="app.js"></script>
+
+
+
+
+
+
+    <div class="login-container">
+        <h2>כניסה לפאנל צוות</h2> <!-- Added title -->
+        <form id="loginForm">
+            <label for="username">שם משתמש:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">סיסמה:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">התחבר</button>
+        </form>
+        <button id="teamButton" style="display:none;">להיכנס לפאנל</button>
+    </div>
+    
+        
+    </body>
+    </html>
+    
