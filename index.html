@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>אתר המיקמק הרשמי</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script> <!-- הוספת ספריית ההצפנה -->
+    <style>
+#codeMenu {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+#codeMenu input {
+    margin-bottom: 10px;
+    padding: 5px;
+    width: 150px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+#codeMenu button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+#codeMenu button:hover {
+    background-color: #0056b3;
+}
+
+#codeMenu #redirectButton {
+    margin-top: 10px;
+    display: none;
+}
+
+
+    </style>
+</head>
+<body>
+ 
+    <div id="codeMenu">
+        <input type="text" id="codeInput" placeholder="הזן קוד">
+        <button id="loginButton">התחבר</button>
+        <button id="redirectButton" style="display:none;">היכנס לדף</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
