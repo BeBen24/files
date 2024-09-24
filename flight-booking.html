@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>קביעת טיסה</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>קביעת טיסה</h1>
+        <form id="flight-form">
+            <div class="form-group">
+                <label for="flight-name">שם טיסה:</label>
+                <input type="text" id="flight-name" required>
+            </div>
+            <div class="form-group">
+                <label for="destination">יעד:</label>
+                <input type="text" id="destination" required>
+            </div>
+            <div class="form-group">
+                <label for="flight-date">תאריך:</label>
+                <input type="date" id="flight-date" required>
+            </div>
+            <div class="form-group">
+                <label for="flight-time">שעה:</label>
+                <input type="time" id="flight-time" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">קבע טיסה</button>
+            </div>
+        </form>
+        <div class="form-group">
+            <a href="index.html" class="back-button">חזרה לדף הראשי</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('flight-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // למנוע שליחה מחדש של הטופס
+
+            const flightName = document.getElementById('flight-name').value;
+            const destination = document.getElementById('destination').value;
+            const flightDate = document.getElementById('flight-date').value;
+            const flightTime = document.getElementById('flight-time').value;
+
+            // יצירת אובייקט טיסה
+            const flight = {
+                name: flightName,
+                destination: destination,
+                date: flightDate,
+                time: flightTime,
+                passengers: [] // נוסיף נוסעים לאחר מכן
+            };
+
+            // קבלת הטיסות הקיימות מה-localStorage
+            const flights = JSON.parse(localStorage.getItem('flights')) || [];
+            flights.push(flight); // הוספת הטיסה החדשה
+
+            // שמירת הטיסות ב-localStorage
+            localStorage.setItem('flights', JSON.stringify(flights));
+
+            // ריקון הטופס
+            this.reset();
+            alert('טיסה נקבעה בהצלחה!');
+        });
+    </script>
+</body>
+</html>

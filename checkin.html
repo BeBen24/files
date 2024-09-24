@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>צ'ק אין לטיסה</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>צ'ק אין לטיסה</h1>
+        <a href="index.html" class="back-button">חזרה לדף הראשי</a>
+        
+        <form id="checkin-form">
+            <div class="form-group">
+                <label for="flight-name">בחר טיסה:</label>
+                <select id="flight-name" required>
+                    <!-- כאן יתווספו הטיסות מה- localStorage -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="passenger-name">שם נוסע:</label>
+                <input type="text" id="passenger-name" placeholder="הכנס שם נוסע" required>
+            </div>
+            <button type="submit">הוסף נוסע</button>
+        </form>
+        
+        <h2>נוסעים רשומים לטיסה:</h2>
+        <ul id="passenger-list">
+            <!-- רשימת נוסעים תתווסף כאן -->
+        </ul>
+    </div>
+
+    <script>
+        // טעינת טיסות מה-localStorage והוספתן לתפריט הבחירה
+        const flightSelect = document.getElementById('flight-name');
+        const passengerList = document.getElementById('passenger-list');
+        const checkinForm = document.getElementById('checkin-form');
+
+        // טוען טיסות מה-localStorage
+        function loadFlights() {
+            const flights = JSON.parse(localStorage.getItem('flights')) || [];
+            flights.forEach(flight => {
+                const option = document.createElement('option');
+                option.value = flight.name;
+                option.textContent = `${flight.name} - ${flight.date}`;
+                flightSelect.appendChild(option);
+            });
+        }
+
+        // הוספת נוסע לרשימה
+        checkinForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const passengerName = document.getElementById('passenger-name').value;
+            const selectedFlight = flightSelect.value;
+
+            const listItem = document.createElement('li');
+            listItem.textContent = `${passengerName} - ${selectedFlight}`;
+            passengerList.appendChild(listItem);
+
+            document.getElementById('passenger-name').value = ''; // ניקוי שדה השם
+        });
+
+        // טעינת הטיסות עם פתיחת הדף
+        loadFlights();
+    </script>
+</body>
+</html>

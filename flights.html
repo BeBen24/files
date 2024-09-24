@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>רשימת טיסות</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>רשימת טיסות</h1>
+        <table id="flights-table">
+            <thead>
+                <tr>
+                    <th>שם טיסה</th>
+                    <th>יעד</th>
+                    <th>תאריך</th>
+                    <th>שעה</th>
+                    <th>נוסעים</th>
+                    <th>פעולה</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- רשימת טיסות תטען כאן -->
+            </tbody>
+        </table>
+        <div class="form-group">
+            <a href="index.html" class="back-button">חזרה לדף הראשי</a>
+        </div>
+    </div>
+
+    <script>
+        // פונקציה לטעינת הטיסות מה-localStorage
+        function loadFlights() {
+            const flights = JSON.parse(localStorage.getItem('flights')) || [];
+            const tbody = document.querySelector('#flights-table tbody');
+            tbody.innerHTML = ''; // ריקון התוכן הקיים
+
+            flights.forEach((flight, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${flight.name}</td>
+                    <td>${flight.destination}</td>
+                    <td>${flight.date}</td>
+                    <td>${flight.time}</td>
+                    <td>${flight.passengers.join(', ')}</td>
+                    <td><button class="delete-button" onclick="deleteFlight(${index})">מחק טיסה</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // פונקציה למחיקת טיסה
+        function deleteFlight(index) {
+            const flights = JSON.parse(localStorage.getItem('flights')) || [];
+            flights.splice(index, 1); // מחיקת הטיסה מהמערך
+            localStorage.setItem('flights', JSON.stringify(flights)); // עדכון ה-localStorage
+            loadFlights(); // רענון הרשימה
+        }
+
+        // טעינת הטיסות עם פתיחת הדף
+        window.onload = loadFlights;
+    </script>
+</body>
+</html>
