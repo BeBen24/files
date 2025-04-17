@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
 <title>צ'אט אנונימי 🔮</title>
 
-<!-- גופנים + CSS בסיסי -->
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -55,11 +54,15 @@
 </footer>
 <div id="alert"></div>
 
-<!-- Yjs + y-webrtc (ES Modules) -->
-<script type="module">
-/* ---- ייבוא הספריות ---- */
-import * as Y from 'https://cdn.jsdelivr.net/npm/yjs@13.6.9/dist/yjs.mjs';
-import { WebrtcProvider } from 'https://esm.sh/y-webrtc@10.2.0';
+<!-- 1. Yjs (UMD) -->
+<script src="https://cdn.jsdelivr.net/npm/yjs@13.6.9/dist/yjs.js"></script>
+<!-- 2. y-webrtc (UMD) -->
+<script src="https://cdn.jsdelivr.net/npm/y-webrtc@10.2.0/dist/y-webrtc.js"></script>
+
+<script>
+/* ---- מופעים גלובליים ---- */
+const Y               = window.Y;
+const WebrtcProvider  = window.ywebrtc.WebrtcProvider;
 
 /* ---- הגדרות ---- */
 const ROOM   = 'anon-chat';
@@ -67,8 +70,12 @@ const ydoc   = new Y.Doc();
 const provider = new WebrtcProvider(ROOM, ydoc);   // signaling ציבורי
 const yarray = ydoc.getArray('messages');
 
-const rand  = () => Math.floor(10**(Math.random()*5));   // 1–5 ספרות
-const me    = 'אנונימי' + rand();
+/* ---- שם אקראי ---- */
+function randomName(){
+  const digits = Math.pow(10, Math.random()*5);      // תומך בדפדפנים ישנים
+  return 'אנונימי' + Math.floor(digits);
+}
+const me = randomName();
 document.getElementById('user').textContent = me;
 
 /* ---- DOM ---- */
@@ -76,66 +83,67 @@ const chat  = document.getElementById('chat');
 const input = document.getElementById('input');
 const alertB= document.getElementById('alert');
 
-/* ---- שרטוט בועה ---- */
-function draw({txt,from,ts}){
-  if(Date.now() - ts > 3_600_000) return;            // > שעה? אל תציג
+/* ---- ציור הודעה ---- */
+function draw(msg){
+  if(!msg) return;
+  if(Date.now() - msg.ts > 3600000) return;          // יותר משעה
   const wrap  = document.createElement('div');
-  wrap.className = 'bubble ' + (from===me ? 'right':'left');
-
+  wrap.className = 'bubble ' + (msg.from===me ? 'right':'left');
   wrap.innerHTML = `
-    <div class="name">${from}</div>
-    <div class="body" dir="auto">${txt}</div>
-    <div class="meta">${new Date(ts)
+    <div class="name">${msg.from}</div>
+    <div class="body" dir="auto">${msg.txt}</div>
+    <div class="meta">${new Date(msg.ts)
       .toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})}</div>`;
   chat.appendChild(wrap);
   chat.scrollTop = chat.scrollHeight;
 }
 
-/* ---- הצגת היסטוריה קיימת ---- */
+/* ---- היסטוריה ---- */
 yarray.forEach(draw);
 
-/* ---- האזנה לשינויים ---- */
+/* ---- סנכרון ---- */
 yarray.observe(e=>{
-  e.changes.added.forEach(i=>{
-    i.content.getContent().forEach(draw);
+  e.changes.added.forEach(it=>{
+    it.content.getContent().forEach(draw);
   });
 });
 
-/* ---- שליחת הודעה ---- */
+/* ---- שליחה ---- */
 function send(){
   const txt = input.value.trim();
   if(!txt) return;
-  yarray.push([{txt,from:me,ts:Date.now()}]);  // משותף לכולם
-  input.value='';                              // ניקוי
-  overflowCheck();
+  yarray.push([{txt,from:me,ts:Date.now()}]);
+  input.value='';
+  checkOverflow();
 }
 document.getElementById('send').onclick = send;
-input.onkeydown = e => (e.key === 'Enter') && send();
+input.onkeydown = e => e.key==='Enter' && send();
 
-/* ---- ניקוי אוטומטי של הודעות ישנות ---- */
+/* ---- ניקוי הודעות ישנות ---- */
 setInterval(()=>{
-  const cutoff = Date.now() - 3_600_000;
+  const cutoff = Date.now() - 3600000;
   ydoc.transact(()=>{
     for(let i=yarray.length-1;i>=0;i--){
-      const m=yarray.get(i); if(m && m.ts < cutoff) yarray.delete(i,1);
+      const m=yarray.get(i);
+      if(m && m.ts < cutoff) yarray.delete(i,1);
     }
   });
-}, 60_000);
+}, 60000);
 
-/* ---- איפוס במקרה עומס ---- */
-function overflowCheck(){
+/* ---- איפוס בעת עומס ---- */
+function checkOverflow(){
   if(yarray.length >= 290){
-    warn('⚠️ הצ\'אט יתאפס בעוד דקה!');
-    setTimeout(() =>{
-      yarray.delete(0,yarray.length);
-      warn('✨ הצ\'אט אופס!');
-    },60_000);
+    warn('⚠️ הצ\'אט יתאפס בעוד דקה!');
+    setTimeout(()=>{
+      yarray.delete(0, yarray.length);
+      warn('✨ הצ\'אט אופס!');
+    }, 60000);
   }
 }
-function warn(txt){
-  alertB.textContent = txt;
-  alertB.style.display='block';
-  setTimeout(()=>alertB.style.display='none',5000);
+function warn(t){
+  alertB.textContent = t;
+  alertB.style.display = 'block';
+  setTimeout(()=> alertB.style.display='none', 5000);
 }
 </script>
 </body>
