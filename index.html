@@ -54,25 +54,17 @@
 </footer>
 <div id="alert"></div>
 
-<!-- 1. Yjs (UMD) -->
-<script src="https://cdn.jsdelivr.net/npm/yjs@13.6.9/dist/yjs.js"></script>
-<!-- 2. y-webrtc (UMD) -->
-<script src="https://cdn.jsdelivr.net/npm/y-webrtc@10.2.0/dist/y-webrtc.js"></script>
+<!-- GUN.js P2P (UMD) -->
+<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
 
 <script>
-/* ---- מופעים גלובליים ---- */
-const Y               = window.Y;
-const WebrtcProvider  = window.ywebrtc.WebrtcProvider;
-
 /* ---- הגדרות ---- */
-const ROOM   = 'anon-chat';
-const ydoc   = new Y.Doc();
-const provider = new WebrtcProvider(ROOM, ydoc);   // signaling ציבורי
-const yarray = ydoc.getArray('messages');
+const gun   = Gun(['https://gun-manhattan.herokuapp.com/gun']); // ריליי ציבורי
+const room  = gun.get('anon-chat-room');                        // "חדר" משותף
 
-/* ---- שם אקראי ---- */
+/* ---- שם משתמש אקראי ---- */
 function randomName(){
-  const digits = Math.pow(10, Math.random()*5);      // תומך בדפדפנים ישנים
+  const digits = Math.pow(10, Math.random()*5); // תואם כל דפדפן
   return 'אנונימי' + Math.floor(digits);
 }
 const me = randomName();
@@ -83,12 +75,17 @@ const chat  = document.getElementById('chat');
 const input = document.getElementById('input');
 const alertB= document.getElementById('alert');
 
-/* ---- ציור הודעה ---- */
-function draw(msg){
-  if(!msg) return;
-  if(Date.now() - msg.ts > 3600000) return;          // יותר משעה
+/* ---- רינדור הודעה ---- */
+function draw(msg,id){
+  if(!msg || !msg.txt) return;
+  if(Date.now() - msg.ts > 3600000){   // > שעה? מחיקה אוטומטית
+    room.get(id).put(null);
+    return;
+  }
+  if(document.getElementById(id)) return;            // כבר צוירה
   const wrap  = document.createElement('div');
-  wrap.className = 'bubble ' + (msg.from===me ? 'right':'left');
+  wrap.id = id;
+  wrap.className = 'bubble ' + (msg.from===me?'right':'left');
   wrap.innerHTML = `
     <div class="name">${msg.from}</div>
     <div class="body" dir="auto">${msg.txt}</div>
@@ -98,46 +95,39 @@ function draw(msg){
   chat.scrollTop = chat.scrollHeight;
 }
 
-/* ---- היסטוריה ---- */
-yarray.forEach(draw);
+/* ---- טעינת הודעות קיימות + סנכרון חי ---- */
+room.map().once(draw);      // once = קבל הודעות קיימות
+room.map().on(draw);        // on   = האזן למשהו חדש
 
-/* ---- סנכרון ---- */
-yarray.observe(e=>{
-  e.changes.added.forEach(it=>{
-    it.content.getContent().forEach(draw);
-  });
-});
-
-/* ---- שליחה ---- */
+/* ---- שליחת הודעה ---- */
 function send(){
   const txt = input.value.trim();
   if(!txt) return;
-  yarray.push([{txt,from:me,ts:Date.now()}]);
+  const id = Gun.text.random();       // מפתח ייחודי
+  room.get(id).put({txt,from:me,ts:Date.now()});
   input.value='';
-  checkOverflow();
+  overflowCheck();
 }
 document.getElementById('send').onclick = send;
 input.onkeydown = e => e.key==='Enter' && send();
 
-/* ---- ניקוי הודעות ישנות ---- */
+/* ---- ניקוי ריקורסיבי כל דקה ---- */
 setInterval(()=>{
-  const cutoff = Date.now() - 3600000;
-  ydoc.transact(()=>{
-    for(let i=yarray.length-1;i>=0;i--){
-      const m=yarray.get(i);
-      if(m && m.ts < cutoff) yarray.delete(i,1);
-    }
+  room.map().once((m,id)=>{
+    if(m && m.ts && (Date.now()-m.ts>3600000)) room.get(id).put(null);
   });
-}, 60000);
+},60000);
 
-/* ---- איפוס בעת עומס ---- */
-function checkOverflow(){
-  if(yarray.length >= 290){
+/* ---- איפוס במקרה עומס ---- */
+function overflowCheck(){
+  let count = 0;
+  room.map().once(()=>++count);
+  if(count>=290){
     warn('⚠️ הצ\'אט יתאפס בעוד דקה!');
     setTimeout(()=>{
-      yarray.delete(0, yarray.length);
+      room.map().once((_,id)=> room.get(id).put(null));
       warn('✨ הצ\'אט אופס!');
-    }, 60000);
+    },60000);
   }
 }
 function warn(t){
