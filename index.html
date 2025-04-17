@@ -5,28 +5,44 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
 <title>צ'אט אנונימי 🔮</title>
 
+<!-- גופנים + CSS בסיסי -->
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap" rel="stylesheet">
 <style>
+  :root{
+    --grad-top:#8a8a8a;--grad-bottom:#ff7a00;
+    --bubble-left:#ffffff1a;--bubble-right:#ffd85c;
+    --text-dark:#333;--text-light:#fff;
+  }
   *{box-sizing:border-box;margin:0;padding:0}
   body{
     font-family:'Heebo',sans-serif;min-height:100vh;
-    background:linear-gradient(#8a8a8a,#ff7a00);
-    display:flex;flex-direction:column
+    background:linear-gradient(var(--grad-top),var(--grad-bottom));
+    display:flex;flex-direction:column;overflow:hidden;
   }
-  header{color:#fff;text-align:center;padding:1rem;font-weight:700;font-size:1.3rem}
-  #chat{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.5rem}
-  .msg{background:#ffffff1a;border-radius:12px;padding:.6rem 1rem;color:#fff;
-       max-width:80%;backdrop-filter:blur(3px);animation:fade .3s}
-  .mine{align-self:flex-end;background:#ffd85c;color:#333}
-  .meta{font-size:.7rem;opacity:.8}
+  header{color:#fff;text-align:center;padding:.8rem;font-size:1.25rem;font-weight:700}
+  #chat{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.8rem}
+  .bubble{
+    max-width:75%;border-radius:18px;padding:.6rem .9rem;display:flex;flex-direction:column;
+    backdrop-filter:blur(3px);animation:fade .25s ease;
+  }
+  .left{align-self:flex-start;background:var(--bubble-left);color:var(--text-light)}
+  .right{align-self:flex-end;background:var(--bubble-right);color:var(--text-dark)}
+  .name{font-size:.75rem;font-weight:700;margin-bottom:.2rem;opacity:.85}
+  .body{font-size:1rem;line-height:1.35;direction:rtl;white-space:pre-wrap;}
+  .meta{font-size:.65rem;margin-top:.3rem;opacity:.7;align-self:flex-end}
   footer{display:flex;gap:.5rem;background:#0002;padding:.6rem}
-  footer input{flex:1;border:none;border-radius:12px;padding:.6rem;font-size:1rem}
-  footer button{background:#ffffff40;border:none;border-radius:12px;padding:.6rem 1.2rem;
-                color:#fff;font-weight:700;cursor:pointer;transition:.3s}
+  footer input{
+    flex:1;border:none;border-radius:18px;padding:.7rem 1rem;font-size:1rem;
+    outline:none;background:#ffffff20;color:#fff;
+  }
+  footer button{
+    background:#ffffff40;border:none;border-radius:18px;padding:.7rem 1.4rem;
+    color:#fff;font-weight:700;cursor:pointer;transition:.3s;
+  }
   footer button:hover{background:#ffffff60}
   @keyframes fade{from{opacity:0;transform:translateY(10px)}}
   #alert{position:fixed;top:10px;left:50%;transform:translateX(-50%);
-         background:#000c;color:#fff;padding:.6rem 1.2rem;border-radius:12px;display:none}
+         background:#000c;color:#fff;padding:.7rem 1.4rem;border-radius:18px;display:none}
 </style>
 </head>
 <body>
@@ -34,91 +50,90 @@
 <header>ברוך הבא, <span id="user"></span>!</header>
 <div id="chat"></div>
 <footer>
-  <input id="input" placeholder="כתוב הודעה...">
+  <input id="input" placeholder="כתוב הודעה..." autocomplete="off">
   <button id="send">שלח</button>
 </footer>
 <div id="alert"></div>
 
-<!-- Yjs + y-webrtc (ESM CDN) -->
+<!-- Yjs + y-webrtc (ES Modules) -->
 <script type="module">
--import * as Y from 'https://cdn.jsdelivr.net/npm/yjs@13.6.9/+esm';
--import { WebrtcProvider } from 'https://cdn.jsdelivr.net/npm/y-webrtc@10.0.8/+esm';
-+import * as Y from 'https://cdn.jsdelivr.net/npm/yjs@13.6.9/+esm';
-+import { WebrtcProvider } from 'https://cdn.jsdelivr.net/npm/y-webrtc@10.2.0/+esm';
+/* ---- ייבוא הספריות ---- */
+import * as Y from 'https://cdn.jsdelivr.net/npm/yjs@13.6.9/dist/yjs.mjs';
+import { WebrtcProvider } from 'https://esm.sh/y-webrtc@10.2.0';
 
-
-/* 1. יצירת “חדר” משותף */
-const room = 'anon-chat';                       // אפשר לשנות
-const ydoc = new Y.Doc();
-const provider = new WebrtcProvider(room, ydoc); // משתמש ב‑signaling ציבורי
+/* ---- הגדרות ---- */
+const ROOM   = 'anon-chat';
+const ydoc   = new Y.Doc();
+const provider = new WebrtcProvider(ROOM, ydoc);   // signaling ציבורי
 const yarray = ydoc.getArray('messages');
 
-/* 2. שם משתמש אקראי */
-const user = 'אנונימי' + Math.floor(10**(Math.random()*5));
-document.getElementById('user').textContent = user;
+const rand  = () => Math.floor(10**(Math.random()*5));   // 1–5 ספרות
+const me    = 'אנונימי' + rand();
+document.getElementById('user').textContent = me;
 
-/* 3. UI בסיסי */
+/* ---- DOM ---- */
 const chat  = document.getElementById('chat');
 const input = document.getElementById('input');
 const alertB= document.getElementById('alert');
 
-function render({text,from,time}){
-  if(Date.now()-time > 3600_000) return;        // יותר משעה – לא מציג
-  const div = document.createElement('div');
-  div.className='msg' + (from===user?' mine':'');
-  div.innerHTML = `
-    <div>${text}</div>
-    <div class="meta">${from} • ${new Date(time)
-       .toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})}</div>`;
-  chat.appendChild(div);
+/* ---- שרטוט בועה ---- */
+function draw({txt,from,ts}){
+  if(Date.now() - ts > 3_600_000) return;            // > שעה? אל תציג
+  const wrap  = document.createElement('div');
+  wrap.className = 'bubble ' + (from===me ? 'right':'left');
+
+  wrap.innerHTML = `
+    <div class="name">${from}</div>
+    <div class="body" dir="auto">${txt}</div>
+    <div class="meta">${new Date(ts)
+      .toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})}</div>`;
+  chat.appendChild(wrap);
   chat.scrollTop = chat.scrollHeight;
 }
 
-/* 4. הצגת היסטוריה קיימת */
-yarray.forEach(render);
+/* ---- הצגת היסטוריה קיימת ---- */
+yarray.forEach(draw);
 
-/* 5. האזנה לשינויים בזמן‑אמת */
-yarray.observe(event=>{
-  event.changes.added.forEach(item=>{
-    item.content.getContent().forEach(render);
+/* ---- האזנה לשינויים ---- */
+yarray.observe(e=>{
+  e.changes.added.forEach(i=>{
+    i.content.getContent().forEach(draw);
   });
 });
 
-/* 6. שליחת הודעה */
+/* ---- שליחת הודעה ---- */
 function send(){
   const txt = input.value.trim();
   if(!txt) return;
-  yarray.push([{text:txt,from:user,time:Date.now()}]);
-  input.value='';
+  yarray.push([{txt,from:me,ts:Date.now()}]);  // משותף לכולם
+  input.value='';                              // ניקוי
   overflowCheck();
 }
 document.getElementById('send').onclick = send;
-input.onkeydown = e=> e.key==='Enter' && send();
+input.onkeydown = e => (e.key === 'Enter') && send();
 
-/* 7. ניקוי מקומי + סנכרון (כל דקה) */
-function cleanup(){
-  const cutoff = Date.now()-3600_000;
-  yarray.doc.transact(()=>{
+/* ---- ניקוי אוטומטי של הודעות ישנות ---- */
+setInterval(()=>{
+  const cutoff = Date.now() - 3_600_000;
+  ydoc.transact(()=>{
     for(let i=yarray.length-1;i>=0;i--){
-      const m = yarray.get(i);
-      if(m && m.time < cutoff) yarray.delete(i,1);
+      const m=yarray.get(i); if(m && m.ts < cutoff) yarray.delete(i,1);
     }
   });
-}
-setInterval(cleanup,60_000);
+}, 60_000);
 
-/* 8. עומס – התראה ואז reset */
+/* ---- איפוס במקרה עומס ---- */
 function overflowCheck(){
   if(yarray.length >= 290){
     warn('⚠️ הצ\'אט יתאפס בעוד דקה!');
-    setTimeout(()=>{                               // מוחק לכולם
+    setTimeout(() =>{
       yarray.delete(0,yarray.length);
       warn('✨ הצ\'אט אופס!');
     },60_000);
   }
 }
 function warn(txt){
-  alertB.textContent=txt;
+  alertB.textContent = txt;
   alertB.style.display='block';
   setTimeout(()=>alertB.style.display='none',5000);
 }
