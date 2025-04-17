@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>צ'אט אנונימי 🔮</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Heebo',sans-serif;min-height:100vh;
+    background:linear-gradient(#8a8a8a,#ff7a00);
+    display:flex;flex-direction:column
+  }
+  header{color:#fff;text-align:center;padding:1rem;font-weight:700;font-size:1.3rem}
+  #chat{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.5rem}
+  .msg{background:#ffffff1a;border-radius:12px;padding:.6rem 1rem;color:#fff;
+       max-width:80%;backdrop-filter:blur(3px);animation:fade .3s}
+  .mine{align-self:flex-end;background:#ffd85c;color:#333}
+  .meta{font-size:.7rem;opacity:.8}
+  footer{display:flex;gap:.5rem;background:#0002;padding:.6rem}
+  footer input{flex:1;border:none;border-radius:12px;padding:.6rem;font-size:1rem}
+  footer button{background:#ffffff40;border:none;border-radius:12px;padding:.6rem 1.2rem;
+                color:#fff;font-weight:700;cursor:pointer;transition:.3s}
+  footer button:hover{background:#ffffff60}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}}
+  #alert{position:fixed;top:10px;left:50%;transform:translateX(-50%);
+         background:#000c;color:#fff;padding:.6rem 1.2rem;border-radius:12px;display:none}
+</style>
+</head>
+<body>
+
+<header>ברוך הבא, <span id="user"></span>!</header>
+<div id="chat"></div>
+<footer>
+  <input id="input" placeholder="כתוב הודעה...">
+  <button id="send">שלח</button>
+</footer>
+<div id="alert"></div>
+
+<!-- Yjs + y-webrtc (ESM CDN) -->
+<script type="module">
+import * as Y from 'https://cdn.jsdelivr.net/npm/yjs@13.6.9/+esm';
+import { WebrtcProvider } from 'https://cdn.jsdelivr.net/npm/y-webrtc@10.0.8/+esm';
+
+/* 1. יצירת “חדר” משותף */
+const room = 'anon-chat';                       // אפשר לשנות
+const ydoc = new Y.Doc();
+const provider = new WebrtcProvider(room, ydoc); // משתמש ב‑signaling ציבורי
+const yarray = ydoc.getArray('messages');
+
+/* 2. שם משתמש אקראי */
+const user = 'אנונימי' + Math.floor(10**(Math.random()*5));
+document.getElementById('user').textContent = user;
+
+/* 3. UI בסיסי */
+const chat  = document.getElementById('chat');
+const input = document.getElementById('input');
+const alertB= document.getElementById('alert');
+
+function render({text,from,time}){
+  if(Date.now()-time > 3600_000) return;        // יותר משעה – לא מציג
+  const div = document.createElement('div');
+  div.className='msg' + (from===user?' mine':'');
+  div.innerHTML = `
+    <div>${text}</div>
+    <div class="meta">${from} • ${new Date(time)
+       .toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})}</div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+/* 4. הצגת היסטוריה קיימת */
+yarray.forEach(render);
+
+/* 5. האזנה לשינויים בזמן‑אמת */
+yarray.observe(event=>{
+  event.changes.added.forEach(item=>{
+    item.content.getContent().forEach(render);
+  });
+});
+
+/* 6. שליחת הודעה */
+function send(){
+  const txt = input.value.trim();
+  if(!txt) return;
+  yarray.push([{text:txt,from:user,time:Date.now()}]);
+  input.value='';
+  overflowCheck();
+}
+document.getElementById('send').onclick = send;
+input.onkeydown = e=> e.key==='Enter' && send();
+
+/* 7. ניקוי מקומי + סנכרון (כל דקה) */
+function cleanup(){
+  const cutoff = Date.now()-3600_000;
+  yarray.doc.transact(()=>{
+    for(let i=yarray.length-1;i>=0;i--){
+      const m = yarray.get(i);
+      if(m && m.time < cutoff) yarray.delete(i,1);
+    }
+  });
+}
+setInterval(cleanup,60_000);
+
+/* 8. עומס – התראה ואז reset */
+function overflowCheck(){
+  if(yarray.length >= 290){
+    warn('⚠️ הצ\'אט יתאפס בעוד דקה!');
+    setTimeout(()=>{                               // מוחק לכולם
+      yarray.delete(0,yarray.length);
+      warn('✨ הצ\'אט אופס!');
+    },60_000);
+  }
+}
+function warn(txt){
+  alertB.textContent=txt;
+  alertB.style.display='block';
+  setTimeout(()=>alertB.style.display='none',5000);
+}
+</script>
+</body>
+</html>
