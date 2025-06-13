@@ -1,466 +1,92 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="shortcut icon" type="image/x-icon" href="logo.png" />
-    <title>Scooter CarPlay</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #000;
-            color: #fff;
-            height: 100vh;
-            overflow: hidden;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
-        }
-        .container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 0;
-            box-sizing: border-box;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: #000;
-        }
-        .status-bar {
-            padding: 1vh 2vw;
-            font-size: 4vw;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 0;
-            margin: 0;
-            text-align: center;
-            box-shadow: 0 0.5vw 1vw rgba(0, 0, 0, 0.3);
-            height: 8vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 10;
-        }
-        .status-bar:hover {
-            transform: translateY(-0.5vw);
-        }
-        .status-bar .time {
-            font-weight: 600;
-        }
-        .app-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 2vw;
-            padding: 2vh 2vw;
-            flex: 1;
-            align-content: center;
-            justify-items: center;
-            opacity: 0;
-            transform: translateY(5vw);
-            animation: slideIn 0.5s ease forwards;
-        }
-        .app-grid.hidden {
-            display: none;
-        }
-        @keyframes slideIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .app-icon {
-            background: rgba(50, 50, 50, 0.8);
-            border-radius: 2vw;
-            padding: 2vw;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 0.5vw 1.5vw rgba(0, 0, 0, 0.4);
-            width: 40vw;
-            height: 20vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .app-icon:hover {
-            transform: scale(1.1) rotate(3deg);
-            box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.5);
-        }
-        .app-icon img {
-            width: 15vw;
-            height: 15vw;
-            border-radius: 2vw;
-            filter: brightness(0) invert(1);
-        }
-        .app-icon span {
-            display: block;
-            margin-top: 1vw;
-            font-size: 3.5vw;
-            font-weight: 600;
-        }
-        .app-screen {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            padding: 2vh 2vw;
-            background: rgba(50, 50, 50, 0.8);
-            border-radius: 2vw;
-            margin: 1vh 1vw;
-            box-shadow: 0 0.5vw 1.5vw rgba(0, 0, 0, 0.4);
-            opacity: 0;
-            transform: scale(0.95);
-            animation: popIn 0.4s ease forwards;
-            max-height: 70vh;
-            overflow-y: auto;
-        }
-        .app-screen.active {
-            display: flex;
-        }
-        @keyframes popIn {
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        .back-btn {
-            background: none;
-            border: none;
-            color: #007bff;
-            font-size: 4vw;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 2vh;
-            text-align: right;
-            transition: color 0.2s, transform 0.2s;
-        }
-        .back-btn:hover {
-            color: #005bb5;
-            transform: translateX(-1vw);
-        }
-        .radio-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1vh;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-        .radio-item {
-            background: rgba(70, 70, 70, 0.8);
-            padding: 2vh 2vw;
-            border-radius: 1.5vw;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.2s;
-        }
-        .radio-item:hover {
-            background: rgba(90, 90, 90, 0.8);
-            transform: translateY(-0.5vw);
-        }
-        .radio-item.playing {
-            background: #007bff;
-            transform: translateY(-0.5vw);
-        }
-        .radio-name {
-            font-size: 4vw;
-            font-weight: 600;
-        }
-        .play-pause-btn {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 5vw;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .play-pause-btn:hover {
-            transform: scale(1.2);
-        }
-        #radio-now-playing {
-            margin-top: 2vh;
-            font-size: 3.5vw;
-            text-align: center;
-            font-weight: 500;
-        }
-        .weather-info {
-            text-align: center;
-            font-size: 4vw;
-        }
-        .weather-info h2 {
-            margin: 2vh 0;
-            font-size: 5.5vw;
-            font-weight: 600;
-        }
-        .weather-icon {
-            width: 18vw;
-            height: 18vw;
-        }
-        @media (min-width: 601px) {
-            .container {
-                max-width: 600px;
-            }
-            .status-bar {
-                font-size: 1.5rem;
-                padding: 10px 20px;
-                border-radius: 10px;
-                height: 50px;
-            }
-            .app-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-                padding: 20px;
-            }
-            .app-icon {
-                border-radius: 20px;
-                padding: 20px;
-                width: 200px;
-                height: 150px;
-            }
-            .app-icon img {
-                width: 80px;
-                height: 80px;
-                border-radius: 16px;
-            }
-            .app-icon span {
-                font-size: 18px;
-                margin-top: 10px;
-            }
-            .app-screen {
-                border-radius: 20px;
-                padding: 20px;
-                margin: 10px;
-                max-height: 400px;
-            }
-            .back-btn {
-                font-size: 18px;
-                margin-bottom: 15px;
-            }
-            .radio-list {
-                gap: 10px;
-                max-height: 350px;
-            }
-            .radio-item {
-                padding: 15px;
-                border-radius: 12px;
-            }
-            .radio-name {
-                font-size: 20px;
-            }
-            .play-pause-btn {
-                font-size: 24px;
-            }
-            #radio-now-playing {
-                margin-top: 20px;
-                font-size: 16px;
-            }
-            .weather-info {
-                font-size: 18px;
-            }
-            .weather-info h2 {
-                margin: 15px 0;
-                font-size: 24px;
-            }
-            .weather-icon {
-                width: 80px;
-                height: 80px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="beben2.com - בקרוב מתחילים" />
+  <meta name="keywords" content="beben2, פרויקטים, בקרוב" />
+  <meta name="author" content="beben2" />
+  <link rel="shortcut icon" type="image/x-icon" href="logo.png" />
+  <title>BeBen2</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      background: black;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin: 0.2em;
+    }
+
+    p {
+      font-size: 1.5em;
+      margin: 0.2em;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    .glow {
+      text-shadow: 0 0 10px #fff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="status-bar">
-            <span class="time" id="current-time"></span>
-        </div>
-        <div class="app-grid" id="home-screen">
-            <div class="app-icon" data-app="radio">
-                <img src="https://img.icons8.com/ios-filled/100/ffffff/radio.png" alt="Radio">
-                <span>רדיו</span>
-            </div>
-            <div class="app-icon" data-app="weather">
-                <img src="https://img.icons8.com/ios-filled/100/ffffff/partly-cloudy-day.png" alt="Weather">
-                <span>מזג אוויר</span>
-            </div>
-        </div>
-        <div class="app-screen" id="radio-screen">
-            <button class="back-btn">חזור</button>
-            <div class="radio-list" id="radio-list"></div>
-            <div id="radio-now-playing">בחר תחנת רדיו</div>
-        </div>
-        <div class="app-screen" id="weather-screen">
-            <button class="back-btn">חזור</button>
-            <div class="weather-info" id="weather-info">
-                <h2>מזג אוויר</h2>
-                <p>טוען...</p>
-            </div>
-        </div>
-    </div>
-    <audio id="radio-player" preload="none"></audio>
-    <script>
-        const radioStations = [
-            { name: 'גלי צה״ל', url: 'https://glzwizzlv.bynetcdn.com/glz_mp3' },
-            { name: 'גלגל״צ', url: 'https://glzwizzlv.bynetcdn.com/glglz_mp3' },
-            { name: 'רדיוס 100 FM', url: 'https://cdn.cybercdn.live/Radios_100FM/Audio/icecast.audio' }
-        ];
+  <canvas id="bgCanvas"></canvas>
+  <h1 class="glow">beben2.com</h1>
+  <p>האתר בעבודה – בקרוב נעלה משהו מדהים!</p>
 
-        const radioList = document.getElementById('radio-list');
-        const radioPlayer = document.getElementById('radio-player');
-        const radioNowPlaying = document.getElementById('radio-now-playing');
-        const homeScreen = document.getElementById('home-screen');
-        const radioScreen = document.getElementById('radio-screen');
-        const weatherScreen = document.getElementById('weather-screen');
-        const weatherInfo = document.getElementById('weather-info');
-        const currentTime = document.getElementById('current-time');
-        let currentStation = null;
+  <script>
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-        // Update time display
-        function updateTime() {
-            const now = new Date();
-            currentTime.textContent = now.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-        }
-        updateTime();
-        setInterval(updateTime, 60000);
+    const points = Array.from({length: 100}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.5 + 0.5,
+      dx: (Math.random() - 0.5) * 0.5,
+      dy: (Math.random() - 0.5) * 0.5
+    }));
 
-        function showScreen(screen) {
-            homeScreen.classList.add('hidden');
-            radioScreen.classList.remove('active');
-            weatherScreen.classList.remove('active');
-            screen.classList.add('active');
-            setTimeout(() => { homeScreen.style.display = 'none'; }, 500);
-        }
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let p of points) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
 
-        function showHome() {
-            homeScreen.style.display = 'grid';
-            homeScreen.classList.remove('hidden');
-            radioScreen.classList.remove('active');
-            weatherScreen.classList.remove('active');
-        }
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      }
+      requestAnimationFrame(animate);
+    }
 
-        document.querySelectorAll('.app-icon').forEach(icon => {
-            icon.addEventListener('click', () => {
-                const app = icon.getAttribute('data-app');
-                if (app === 'radio') showScreen(radioScreen);
-                else if (app === 'weather') {
-                    showScreen(weatherScreen);
-                    fetchWeather();
-                }
-            });
-        });
+    animate();
 
-        document.querySelectorAll('.back-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                showHome();
-                radioPlayer.pause();
-                currentStation = null;
-                radioNowPlaying.textContent = 'בחר תחנת רדיו';
-                document.querySelectorAll('.radio-item').forEach(item => {
-                    item.classList.remove('playing');
-                    item.querySelector('.play-pause-btn').innerHTML = '▶';
-                });
-            });
-        });
-
-        function createRadioItem(station, index) {
-            const item = document.createElement('div');
-            item.className = 'radio-item';
-            item.innerHTML = `
-                <span class="radio-name">${station.name}</span>
-                <button class="play-pause-btn" data-index="${index}">▶</button>
-            `;
-            item.querySelector('.play-pause-btn').addEventListener('click', () => togglePlay(station, index));
-            return item;
-        }
-
-        function togglePlay(station, index) {
-            const allItems = document.querySelectorAll('.radio-item');
-            const allButtons = document.querySelectorAll('.play-pause-btn');
-            if (currentStation === station) {
-                radioPlayer.pause();
-                currentStation = null;
-                radioNowPlaying.textContent = 'בחר תחנת רדיו';
-                allItems[index].classList.remove('playing');
-                allButtons[index].innerHTML = '▶';
-            } else {
-                allItems.forEach((item, i) => {
-                    item.classList.remove('playing');
-                    allButtons[i].innerHTML = '▶';
-                });
-                radioPlayer.src = station.url;
-                radioPlayer.play().catch(e => console.error('Error playing audio:', e));
-                currentStation = station;
-                radioNowPlaying.textContent = `מנגן כעת: ${station.name}`;
-                allItems[index].classList.add('playing');
-                allButtons[index].innerHTML = '❚❚';
-            }
-        }
-
-        radioStations.forEach((station, index) => {
-            radioList.appendChild(createRadioItem(station, index));
-        });
-
-        radioPlayer.addEventListener('error', () => {
-            radioNowPlaying.textContent = 'שגיאה בניגון התחנה';
-        });
-
-        function fetchWeather() {
-            fetch('https://api.open-meteo.com/v1/forecast?latitude=32.0853&longitude=34.7818&current=temperature_2m,weathercode&timezone=Asia/Jerusalem')
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(data => {
-                    const temp = data.current.temperature_2m;
-                    const weatherCode = data.current.weathercode;
-                    const weatherDesc = getWeatherDescription(weatherCode);
-                    weatherInfo.innerHTML = `
-                        <h2>מזג אוויר בתל אביב</h2>
-                        <img class="weather-icon" src="${getWeatherIcon(weatherCode)}" alt="Weather">
-                        <p>טמפרטורה: ${temp}°C</p>
-                        <p>${weatherDesc}</p>
-                    `;
-                })
-                .catch(error => {
-                    weatherInfo.innerHTML = '<h2>מזג אוויר</h2><p>שגיאה בטעינת נתונים</p>';
-                    console.error('Error fetching weather:', error);
-                });
-        }
-
-        function getWeatherDescription(code) {
-            const descriptions = {
-                0: 'שמיים בהירים',
-                1: 'מעונן חלקית',
-                2: 'מעונן',
-                3: 'מעונן מאוד',
-                45: 'ערפל',
-                61: 'גשם קל',
-                63: 'גשם',
-                65: 'גשם כבד'
-            };
-            return descriptions[code] || 'לא ידוע';
-        }
-
-        function getWeatherIcon(code) {
-            const icons = {
-                0: 'https://img.icons8.com/ios-filled/100/ffffff/sun.png',
-                1: 'https://img.icons8.com/ios-filled/100/ffffff/partly-cloudy-day.png',
-                2: 'https://img.icons8.com/ios-filled/100/ffffff/clouds.png',
-                3: 'https://img.icons8.com/ios-filled/100/ffffff/overcast.png',
-                45: 'https://img.icons8.com/ios-filled/100/ffffff/fog.png',
-                61: 'https://img.icons8.com/ios-filled/100/ffffff/light-rain.png',
-                63: 'https://img.icons8.com/ios-filled/100/ffffff/rain.png',
-                65: 'https://img.icons8.com/ios-filled/100/ffffff/heavy-rain.png'
-            };
-            return icons[code] || 'https://img.icons8.com/ios-filled/100/ffffff/help.png';
-        }
-    </script>
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
 </body>
 </html>
