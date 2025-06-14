@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BeBen2 – המרת מדיה</title>
-  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
   <style>
     html, body {
       margin: 0;
@@ -157,135 +158,48 @@
     <button class="btn back-btn" onclick="location.href='index.html'">← חזור</button>
     <h2>המרת קבצי מדיה</h2>
     <p>העלה קובץ MP3 או MP4 ובחר פורמט המרה</p>
-    <input type="file" id="fileInput" accept="audio/*,video/*" />
-    <select id="formatSelect" style="display:none"></select>
+    <input type="file" id="fileInput" />
+    <select id="formatSelect" style="display:none">
+      <option value="mp3">MP3</option>
+      <option value="wav">WAV</option>
+    </select>
     <button class="btn" id="convertBtn" style="display:none">המר</button>
     <div id="progressBar"><div id="progress"></div></div>
     <div id="downloadLink"></div>
   </div>
 
-  <script src="https://js.puter.com/v2/"></script>
   <script>
-    const canvas = document.getElementById('bgCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const { createFFmpeg, fetchFile } = FFmpeg;
+    const ffmpeg = createFFmpeg({ log: true });
+    let selectedFile;
 
-    const balls = Array.from({ length: 60 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 25 + 20,
-      dx: (Math.random() - 0.5) * 0.3,
-      dy: (Math.random() - 0.5) * 0.3,
-      angle: Math.random() * Math.PI * 2
-    }));
-
-    let time = 0;
-
-    function drawGlassBall(p, lightX, lightY) {
-      p.angle += 0.01;
-      const dx = p.x - lightX;
-      const dy = p.y - lightY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const norm = Math.max(0.2, Math.min(1, 1 - dist / 600));
-      const grad = ctx.createRadialGradient(
-        p.x - p.r * Math.cos(p.angle) * 0.3,
-        p.y - p.r * Math.sin(p.angle) * 0.3,
-        p.r * 0.2,
-        p.x,
-        p.y,
-        p.r
-      );
-      grad.addColorStop(0, `rgba(255,255,255,${0.3 * norm})`);
-      grad.addColorStop(0.3, `rgba(255,255,255,${0.05 * norm})`);
-      grad.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = grad;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(p.x - dx * 0.05, p.y - dy * 0.05, p.r * 0.08, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,255,255,${0.08 * norm})`;
-      ctx.fill();
-    }
-
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      time += 0.01;
-      const lightX = canvas.width / 2 + Math.sin(time) * 200;
-      const lightY = canvas.height / 2 + Math.cos(time) * 200;
-      balls.forEach(p => {
-        drawGlassBall(p, lightX, lightY);
-        p.x += p.dx;
-        p.y += p.dy;
-        if (p.x < p.r || p.x > canvas.width - p.r) p.dx *= -1;
-        if (p.y < p.r || p.y > canvas.height - p.r) p.dy *= -1;
-      });
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-    window.addEventListener('resize', () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
-
-    const fileInput = document.getElementById('fileInput');
-    const formatSelect = document.getElementById('formatSelect');
-    const convertBtn = document.getElementById('convertBtn');
-    const progressBar = document.getElementById('progressBar');
-    const progressEl = document.getElementById('progress');
-    const downloadLink = document.getElementById('downloadLink');
-    const formatMap = {
-      audio: ['wav', 'ogg', 'mp3'],
-      video: ['mov', 'webm', 'avi']
-    };
-
-    let selectedFile, fileType;
-
-    fileInput.addEventListener('change', () => {
-      selectedFile = fileInput.files[0];
+    document.getElementById('fileInput').addEventListener('change', async e => {
+      selectedFile = e.target.files[0];
       if (!selectedFile) return;
-      fileType = selectedFile.type.startsWith('audio') ? 'audio' : 'video';
-      formatSelect.innerHTML = formatMap[fileType]
-        .map(f => `<option value="${f}">${f.toUpperCase()}</option>`)
-        .join('');
-      formatSelect.style.display = 'inline-block';
-      convertBtn.style.display = 'inline-block';
+      document.getElementById('formatSelect').style.display = 'inline-block';
+      document.getElementById('convertBtn').style.display = 'inline-block';
     });
 
-    convertBtn.addEventListener('click', async () => {
-      const target = formatSelect.value;
-      const form = new FormData();
-      form.append('file', selectedFile);
-      form.append('target_format', target);
+    document.getElementById('convertBtn').addEventListener('click', async () => {
+      const format = document.getElementById('formatSelect').value;
+      const fileName = selectedFile.name;
+      const outputName = 'output.' + format;
+      const progressBar = document.getElementById('progressBar');
+      const progress = document.getElementById('progress');
+      const downloadLink = document.getElementById('downloadLink');
       progressBar.style.display = 'block';
-      progressEl.style.width = '0%';
+      progress.style.width = '10%';
       downloadLink.innerHTML = '';
 
-      try {
-        const res = await puter.net.fetch('https://v2.convertapi.com/convert', {
-          method: 'POST',
-          body: form
-        });
-        const reader = res.body.getReader();
-        const chunks = [];
-        let received = 0;
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          chunks.push(value);
-          received += value.length;
-          progressEl.style.width = Math.min(100, (received / 4000000) * 100) + '%';
-        }
-        const blob = new Blob(chunks);
-        const url = URL.createObjectURL(blob);
-        downloadLink.innerHTML = `<a href="${url}" download="${selectedFile.name.replace(/\.\w+$/, `.${target}`)}">הורד קובץ ${target.toUpperCase()}</a>`;
-      } catch (err) {
-        alert('שגיאה בהמרה');
-      } finally {
-        progressBar.style.display = 'none';
-      }
+      if (!ffmpeg.isLoaded()) await ffmpeg.load();
+
+      ffmpeg.FS('writeFile', fileName, await fetchFile(selectedFile));
+      await ffmpeg.run('-i', fileName, outputName);
+      const data = ffmpeg.FS('readFile', outputName);
+
+      const url = URL.createObjectURL(new Blob([data.buffer]));
+      downloadLink.innerHTML = `<a href="${url}" download="${outputName}">הורד קובץ ${format.toUpperCase()}</a>`;
+      progress.style.width = '100%';
     });
   </script>
 </body>
