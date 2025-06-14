@@ -7,9 +7,29 @@
   <meta name="keywords" content="beben2, פרויקטים, בקרוב" />
   <meta name="author" content="beben2" />
   <link rel="shortcut icon" type="image/x-icon" href="logo.png" />
+  <link rel="icon" type="image/png" href="logo.png" />
+  
+  <!-- Open Graph (Discord, Facebook) -->
+  <meta property="og:title" content="BeBen2" />
+  <meta property="og:description" content="האתר בעבודה - בקרוב מתחילים!" />
   <meta property="og:image" content="https://beben2.com/logo.png" />
+  <meta property="og:url" content="https://beben2.com" />
+  <meta property="og:type" content="website" />
+
+  <!-- JSON-LD Structured Data (Google Logo in search) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "BeBen2",
+    "url": "https://beben2.com",
+    "logo": "https://beben2.com/logo.png"
+  }
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
   <title>BeBen2</title>
+
   <style>
     html, body {
       margin: 0;
@@ -115,13 +135,11 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       time += 0.01;
 
-      // simulate moving light source
       const lightX = canvas.width / 2 + Math.sin(time) * 200;
       const lightY = canvas.height / 2 + Math.cos(time) * 200;
 
       balls.forEach(p => {
         drawGlassBall(p, lightX, lightY);
-
         p.x += p.dx;
         p.y += p.dy;
 
