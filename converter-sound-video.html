@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BeBen2 – המרת מדיה</title>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #000;
+      color: #fff;
+      font-family: 'Assistant', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 32px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .container h2 {
+      margin-top: 0;
+      font-size: 1.8em;
+    }
+
+    .container p {
+      color: #ccc;
+      font-size: 1em;
+      margin-bottom: 20px;
+    }
+
+    input[type="file"] {
+      margin: 10px 0;
+      padding: 0;
+      border: none;
+      font-size: 1rem;
+      color: #fff;
+    }
+
+    input[type="file"]::-webkit-file-upload-button {
+      visibility: hidden;
+    }
+
+    input[type="file"]::before {
+      content: 'בחר קובץ';
+      display: inline-block;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      color: white;
+      border-radius: 18px;
+      padding: 12px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    input[type="file"]:hover::before {
+      background: rgba(255,255,255,0.18);
+    }
+
+    select {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      backdrop-filter: blur(10px);
+      font-size: 1rem;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    select option {
+      background-color: #111;
+      color: white;
+    }
+
+    .btn {
+      margin: 10px 0;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: scale(1.03);
+    }
+
+    #progressBar {
+      width: 100%;
+      height: 10px;
+      background: #222;
+      border-radius: 6px;
+      margin-top: 16px;
+      display: none;
+      overflow: hidden;
+    }
+
+    #progress {
+      height: 100%;
+      width: 0;
+      background: #4caf50;
+      transition: width 0.2s ease;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      font-size: 0.9rem;
+    }
+
+    #downloadLink {
+      margin-top: 16px;
+    }
+
+    #downloadLink a {
+      color: #00bcd4;
+      font-weight: bold;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="container">
+    <button class="btn back-btn" onclick="location.href='index.html'">← חזור</button>
+    <h2>המרת קבצי מדיה</h2>
+    <p>העלה קובץ MP3 או MP4 ובחר פורמט המרה</p>
+    <input type="file" id="fileInput" accept="audio/*,video/*" />
+    <select id="formatSelect" style="display:none"></select>
+    <button class="btn" id="convertBtn" style="display:none">המר</button>
+    <div id="progressBar"><div id="progress"></div></div>
+    <div id="downloadLink"></div>
+  </div>
+
+  <script src="https://js.puter.com/v2/"></script>
+  <script>
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const balls = Array.from({ length: 60 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 25 + 20,
+      dx: (Math.random() - 0.5) * 0.3,
+      dy: (Math.random() - 0.5) * 0.3,
+      angle: Math.random() * Math.PI * 2
+    }));
+
+    let time = 0;
+
+    function drawGlassBall(p, lightX, lightY) {
+      p.angle += 0.01;
+      const dx = p.x - lightX;
+      const dy = p.y - lightY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const norm = Math.max(0.2, Math.min(1, 1 - dist / 600));
+      const grad = ctx.createRadialGradient(
+        p.x - p.r * Math.cos(p.angle) * 0.3,
+        p.y - p.r * Math.sin(p.angle) * 0.3,
+        p.r * 0.2,
+        p.x,
+        p.y,
+        p.r
+      );
+      grad.addColorStop(0, `rgba(255,255,255,${0.3 * norm})`);
+      grad.addColorStop(0.3, `rgba(255,255,255,${0.05 * norm})`);
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(p.x - dx * 0.05, p.y - dy * 0.05, p.r * 0.08, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${0.08 * norm})`;
+      ctx.fill();
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      time += 0.01;
+      const lightX = canvas.width / 2 + Math.sin(time) * 200;
+      const lightY = canvas.height / 2 + Math.cos(time) * 200;
+      balls.forEach(p => {
+        drawGlassBall(p, lightX, lightY);
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < p.r || p.x > canvas.width - p.r) p.dx *= -1;
+        if (p.y < p.r || p.y > canvas.height - p.r) p.dy *= -1;
+      });
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    const fileInput = document.getElementById('fileInput');
+    const formatSelect = document.getElementById('formatSelect');
+    const convertBtn = document.getElementById('convertBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressEl = document.getElementById('progress');
+    const downloadLink = document.getElementById('downloadLink');
+    const formatMap = {
+      audio: ['wav', 'ogg', 'mp3'],
+      video: ['mov', 'webm', 'avi']
+    };
+
+    let selectedFile, fileType;
+
+    fileInput.addEventListener('change', () => {
+      selectedFile = fileInput.files[0];
+      if (!selectedFile) return;
+      fileType = selectedFile.type.startsWith('audio') ? 'audio' : 'video';
+      formatSelect.innerHTML = formatMap[fileType]
+        .map(f => `<option value="${f}">${f.toUpperCase()}</option>`)
+        .join('');
+      formatSelect.style.display = 'inline-block';
+      convertBtn.style.display = 'inline-block';
+    });
+
+    convertBtn.addEventListener('click', async () => {
+      const target = formatSelect.value;
+      const form = new FormData();
+      form.append('file', selectedFile);
+      form.append('target_format', target);
+      progressBar.style.display = 'block';
+      progressEl.style.width = '0%';
+      downloadLink.innerHTML = '';
+
+      try {
+        const res = await puter.net.fetch('https://v2.convertapi.com/convert', {
+          method: 'POST',
+          body: form
+        });
+        const reader = res.body.getReader();
+        const chunks = [];
+        let received = 0;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          received += value.length;
+          progressEl.style.width = Math.min(100, (received / 4000000) * 100) + '%';
+        }
+        const blob = new Blob(chunks);
+        const url = URL.createObjectURL(blob);
+        downloadLink.innerHTML = `<a href="${url}" download="${selectedFile.name.replace(/\.\w+$/, `.${target}`)}">הורד קובץ ${target.toUpperCase()}</a>`;
+      } catch (err) {
+        alert('שגיאה בהמרה');
+      } finally {
+        progressBar.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
