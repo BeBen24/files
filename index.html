@@ -8,15 +8,11 @@
   <meta name="author" content="beben2" />
   <link rel="shortcut icon" type="image/x-icon" href="logo.png" />
   <link rel="icon" type="image/png" href="logo.png" />
-  
-  <!-- Open Graph (Discord, Facebook) -->
   <meta property="og:title" content="BeBen2" />
   <meta property="og:description" content="האתר בעבודה - בקרוב מתחילים!" />
   <meta property="og:image" content="https://beben2.com/logo.png" />
   <meta property="og:url" content="https://beben2.com" />
   <meta property="og:type" content="website" />
-
-  <!-- JSON-LD Structured Data (Google Logo in search) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -26,10 +22,8 @@
     "logo": "https://beben2.com/logo.png"
   }
   </script>
-
   <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
   <title>BeBen2</title>
-
   <style>
     html, body {
       margin: 0;
@@ -51,7 +45,7 @@
       font-weight: 700;
       margin: 0.2em 0;
       color: white;
-      z-index: 1;
+      z-index: 2;
     }
 
     p {
@@ -59,7 +53,7 @@
       font-weight: 400;
       margin: 0.2em 0;
       color: #ccc;
-      z-index: 1;
+      z-index: 2;
     }
 
     canvas {
@@ -68,12 +62,92 @@
       left: 0;
       z-index: 0;
     }
+
+    .info-btn {
+      position: relative;
+      z-index: 2;
+      margin-top: 20px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 18px;
+      font-size: 1.2em;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .info-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.05);
+    }
+
+    .modal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(25px);
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+      border-radius: 24px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s ease;
+      z-index: 10;
+    }
+
+    .modal.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .modal h2 {
+      margin-top: 0;
+      color: white;
+      font-size: 1.8em;
+    }
+
+    .modal p {
+      color: #ddd;
+      font-size: 1.1em;
+      margin-top: 10px;
+    }
+
+    .close-btn {
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.07);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      font-size: 1em;
+      transition: 0.3s ease;
+    }
+
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
   </style>
 </head>
 <body>
   <canvas id="bgCanvas"></canvas>
   <h1>beben2.com</h1>
   <p>האתר בעבודה - בקרוב מתחילים</p>
+  <button class="info-btn" id="infoBtn">מידע</button>
+
+  <div class="modal" id="infoModal">
+    <h2>מה זה האתר הזה</h2>
+    <p>אנחנו עובדים על אתר כלים שיש בו כלים שימושיים ליום יום כמו המרת קבצי pdf mp4 mp3 ועוד הרבה דברים נוחים בלי הרשמה ובלי בעיות הכל במקום אחד בצורה מהירה פשוטה ואיכותית</p>
+    <button class="close-btn" id="closeBtn">סגירה</button>
+  </div>
 
   <script>
     const canvas = document.getElementById('bgCanvas');
@@ -94,12 +168,10 @@
 
     function drawGlassBall(p, lightX, lightY) {
       p.angle += 0.01;
-
       const dx = p.x - lightX;
       const dy = p.y - lightY;
       const dist = Math.sqrt(dx * dx + dy * dy);
       const norm = Math.max(0.2, Math.min(1, 1 - dist / 600));
-
       const grad = ctx.createRadialGradient(
         p.x - p.r * Math.cos(p.angle) * 0.3,
         p.y - p.r * Math.sin(p.angle) * 0.3,
@@ -108,25 +180,15 @@
         p.y,
         p.r
       );
-
       grad.addColorStop(0, `rgba(255,255,255,${0.3 * norm})`);
       grad.addColorStop(0.3, `rgba(255,255,255,${0.05 * norm})`);
       grad.addColorStop(1, 'rgba(255,255,255,0)');
-
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fillStyle = grad;
       ctx.fill();
-
-      // highlight reflection
       ctx.beginPath();
-      ctx.arc(
-        p.x - dx * 0.05,
-        p.y - dy * 0.05,
-        p.r * 0.08,
-        0,
-        Math.PI * 2
-      );
+      ctx.arc(p.x - dx * 0.05, p.y - dy * 0.05, p.r * 0.08, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(255,255,255,${0.08 * norm})`;
       ctx.fill();
     }
@@ -134,19 +196,15 @@
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       time += 0.01;
-
       const lightX = canvas.width / 2 + Math.sin(time) * 200;
       const lightY = canvas.height / 2 + Math.cos(time) * 200;
-
       balls.forEach(p => {
         drawGlassBall(p, lightX, lightY);
         p.x += p.dx;
         p.y += p.dy;
-
         if (p.x < p.r || p.x > canvas.width - p.r) p.dx *= -1;
         if (p.y < p.r || p.y > canvas.height - p.r) p.dy *= -1;
       });
-
       requestAnimationFrame(animate);
     }
 
@@ -155,6 +213,18 @@
     window.addEventListener('resize', () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+    });
+
+    const infoBtn = document.getElementById("infoBtn");
+    const infoModal = document.getElementById("infoModal");
+    const closeBtn = document.getElementById("closeBtn");
+
+    infoBtn.addEventListener("click", () => {
+      infoModal.classList.add("active");
+    });
+
+    closeBtn.addEventListener("click", () => {
+      infoModal.classList.remove("active");
     });
   </script>
 </body>
