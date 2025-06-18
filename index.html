@@ -1,59 +1,89 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="beben2.com - בקרוב מתחילים" />
-  <meta name="keywords" content="beben2, פרויקטים, בקרוב" />
-  <meta name="author" content="beben2" />
-  <link rel="shortcut icon" type="image/x-icon" href="logo.png" />
-  <link rel="icon" type="image/png" href="logo.png" />
-  <meta property="og:title" content="BeBen2" />
-  <meta property="og:description" content="האתר בעבודה - בקרוב מתחילים!" />
-  <meta property="og:image" content="https://beben2.com/logo.png" />
-  <meta property="og:url" content="https://beben2.com" />
-  <meta property="og:type" content="website" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "BeBen2",
-    "url": "https://beben2.com",
-    "logo": "https://beben2.com/logo.png"
-  }
-  </script>
-  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
-  <title>BeBen2</title>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="beben2.com - בקרוב מתחילים" />
+        <meta name="keywords" content="beben2, פרויקטים, בקרוב" />
+        <meta name="author" content="beben2" />
+        <link rel="shortcut icon" type="image/x-icon" href="logo.png" />
+        <link rel="icon" type="image/png" href="logo.png" />
+        <meta property="og:title" content="BeBen2" />
+        <meta property="og:description" content="האתר בעבודה - בקרוב מתחילים!" />
+        <meta property="og:image" content="https://beben2.com/logo.png" />
+        <meta property="og:url" content="https://beben2.com" />
+        <meta property="og:type" content="website" />
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "BeBen2",
+          "url": "https://beben2.com",
+          "logo": "https://beben2.com/logo.png"
+        }
+        </script>
+        <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
+        <title>BeBen2</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       overflow: hidden;
       height: 100%;
-      background: #000000;
+      background: #000;
       color: white;
       font-family: 'Assistant', sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      text-align: center;
     }
 
     h1 {
-      font-size: 3.5em;
-      font-weight: 700;
-      margin: 0.2em 0;
-      color: white;
+      font-size: 3.2em;
+      margin: 0.4em 0;
       z-index: 2;
     }
 
-    p {
-      font-size: 1.5em;
-      font-weight: 400;
-      margin: 0.2em 0;
-      color: #ccc;
+    .tool-buttons {
+      position: relative;
       z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 90%;
+      max-width: 360px;
+    }
+
+    .tool-buttons a {
+  text-decoration: none;
+  width: 100%;
+}
+
+.tool-btn {
+  width: 100%;
+  padding: 14px 28px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 18px;
+  color: white;
+  font-size: 1.1em;
+  text-align: center;
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+
+    .tool-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.05);
     }
 
     canvas {
@@ -62,91 +92,17 @@
       left: 0;
       z-index: 0;
     }
-
-    .info-btn {
-      position: relative;
-      z-index: 2;
-      margin-top: 20px;
-      padding: 12px 28px;
-      border: none;
-      border-radius: 18px;
-      font-size: 1.2em;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .info-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: scale(1.05);
-    }
-
-    .modal {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.9);
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(25px);
-      box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
-      border-radius: 24px;
-      padding: 30px;
-      width: 90%;
-      max-width: 400px;
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.4s ease;
-      z-index: 10;
-    }
-
-    .modal.active {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translate(-50%, -50%) scale(1);
-    }
-
-    .modal h2 {
-      margin-top: 0;
-      color: white;
-      font-size: 1.8em;
-    }
-
-    .modal p {
-      color: #ddd;
-      font-size: 1.1em;
-      margin-top: 10px;
-    }
-
-    .close-btn {
-      margin-top: 20px;
-      background: rgba(255, 255, 255, 0.07);
-      border: none;
-      padding: 10px 20px;
-      border-radius: 12px;
-      color: white;
-      cursor: pointer;
-      font-size: 1em;
-      transition: 0.3s ease;
-    }
-
-    .close-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
   </style>
 </head>
 <body>
   <canvas id="bgCanvas"></canvas>
-  <h1>beben2.com</h1>
-  <p>האתר בעבודה - בקרוב מתחילים</p>
-  <button class="info-btn" id="infoBtn">מידע</button>
-
-  <div class="modal" id="infoModal">
-    <h2>מה זה האתר הזה</h2>
-    <p>אנחנו עובדים על אתר כלים שיש בו כלים שימושיים ליום יום כמו המרת קבצי pdf mp4 mp3 ועוד הרבה דברים נוחים בלי הרשמה ובלי בעיות הכל במקום אחד בצורה מהירה פשוטה ואיכותית</p>
-    <button class="close-btn" id="closeBtn">סגירה</button>
+  <h1>BeBen2 – הכלים</h1>
+  <div class="tool-buttons">
+    <a href="qr-generator.html"><div class="tool-btn">Qr generator</div></a>
+    <a href="hls-player.html"><div class="tool-btn">Hls player</div></a>
+    <!-- תוכל להוסיף עוד כפתור כזה: 
+    <a href="your-page.html"><div class="tool-btn">Tool Name</div></a>
+    -->
   </div>
 
   <script>
@@ -213,18 +169,6 @@
     window.addEventListener('resize', () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-    });
-
-    const infoBtn = document.getElementById("infoBtn");
-    const infoModal = document.getElementById("infoModal");
-    const closeBtn = document.getElementById("closeBtn");
-
-    infoBtn.addEventListener("click", () => {
-      infoModal.classList.add("active");
-    });
-
-    closeBtn.addEventListener("click", () => {
-      infoModal.classList.remove("active");
     });
   </script>
 </body>
