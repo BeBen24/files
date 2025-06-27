@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>התחברות בוצעה</title>
+  <link href="style.css" rel="stylesheet" />
+</head>
+<body>
+  <main>
+    <h1>ברוך הבא</h1>
+    <p id="username">טוען פרטי משתמש...</p>
+  </main>
+  <script>
+    const hash = window.location.hash.substring(1)
+    const params = new URLSearchParams(hash)
+    const token = params.get("access_token")
+
+    if (token) {
+      fetch("https://discord.com/api/users/@me", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(res => res.json())
+        .then(user => {
+          document.getElementById("username").textContent = `${user.username}#${user.discriminator}`
+        })
+        .catch(() => {
+          document.getElementById("username").textContent = "שגיאה בקבלת פרטי המשתמש"
+        })
+    } else {
+      document.getElementById("username").textContent = "אין גישה. נסה להתחבר שוב."
+    }
+  </script>
+</body>
+</html>
