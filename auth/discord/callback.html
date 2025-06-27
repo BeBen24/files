@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>התחברות בוצעה</title>
-  <link href="style.css" rel="stylesheet" />
+  <link href="/style.css" rel="stylesheet" />
 </head>
 <body>
   <main>
@@ -22,13 +22,15 @@
           Authorization: `Bearer ${token}`
         }
       })
-        .then(res => res.json())
-        .then(user => {
-          document.getElementById("username").textContent = `${user.username}#${user.discriminator}`
-        })
-        .catch(() => {
-          document.getElementById("username").textContent = "שגיאה בקבלת פרטי המשתמש"
-        })
+      .then(res => res.json())
+      .then(user => {
+        localStorage.setItem("discordUser", JSON.stringify(user))
+        document.getElementById("username").textContent = `${user.username}#${user.discriminator}`
+        setTimeout(() => window.location.href = "/", 1000)
+      })
+      .catch(() => {
+        document.getElementById("username").textContent = "שגיאה בקבלת פרטי המשתמש"
+      })
     } else {
       document.getElementById("username").textContent = "אין גישה. נסה להתחבר שוב."
     }
