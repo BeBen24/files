@@ -4,16 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מתחברים...</title>
-  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <main>
-    <h1>מתחברים לחשבון דיסקורד...</h1>
-  </main>
   <script>
     const hash = window.location.hash.substring(1);
-    const params = new URLSearchParams(hash);
-    const token = params.get("access_token");
+    const token = new URLSearchParams(hash).get("access_token");
 
     if (!token) window.location.href = "/";
 
@@ -26,7 +21,7 @@
       window.location.href = "/";
     })
     .catch(() => {
-      alert("נכשל בהתחברות לדיסקורד");
+      alert("שגיאה בהתחברות");
       window.location.href = "/";
     });
   </script>
