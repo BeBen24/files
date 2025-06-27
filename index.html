@@ -14,48 +14,42 @@
   <meta property="og:url" content="https://beben2.com" />
   <meta property="og:type" content="website" />
   <title>BeBen2.com</title>
-  <link href="style.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <nav>
     <div class="logo">BeBen2</div>
-    <div class="nav-links">
+    <div class="nav-links" id="nav-links">
       <a href="#">דף הבית</a>
-      <div id="user-area">
-        <a class="discord-btn" id="login-btn" href="https://discord.com/oauth2/authorize?client_id=1388210958702215329&response_type=token&redirect_uri=https%3A%2F%2Fbeben2.com%2Fauth%2Fdiscord%2Fcallback&scope=identify">התחברות עם דיסקורד</a>
-      </div>
+      <div id="auth-slot"></div>
     </div>
   </nav>
   <main>
-    <h1>BeBen2.com</h1>
-    <p>בקרוב מתחילים</p>
+    <h1 class="fade-in">BeBen2.com</h1>
+    <p class="fade-in delay">בקרוב מתחילים</p>
   </main>
   <script>
-    const user = JSON.parse(localStorage.getItem("discordUser"))
-    const userArea = document.getElementById("user-area")
-    if (user) {
-      userArea.innerHTML = `
-        <div class="user-menu">
-          <img src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png" alt="avatar" class="avatar" />
-          <div class="dropdown">
-            <span>${user.username}#${user.discriminator}</span>
-            <button onclick="logout()">התנתק</button>
-          </div>
+    const userData = JSON.parse(localStorage.getItem("discordUser"));
+    const authSlot = document.getElementById("auth-slot");
+
+    if (userData) {
+      authSlot.innerHTML = `
+        <div class="user-info">
+          <img src="https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png" alt="avatar">
+          <span>${userData.username}#${userData.discriminator}</span>
+          <button onclick="logout()">התנתקות</button>
         </div>
-      `
-      const avatar = document.querySelector(".user-menu")
-      avatar.addEventListener("mouseenter", () => {
-        avatar.querySelector(".dropdown").style.display = "flex"
-      })
-      avatar.addEventListener("mouseleave", () => {
-        avatar.querySelector(".dropdown").style.display = "none"
-      })
+      `;
+    } else {
+      authSlot.innerHTML = `
+        <a class="discord-btn" href="https://discord.com/oauth2/authorize?client_id=1388210958702215329&response_type=token&redirect_uri=https%3A%2F%2Fbeben2.com%2Fauth%2Fdiscord%2Fcallback&scope=identify">התחברות עם דיסקורד</a>
+      `;
     }
 
     function logout() {
-      localStorage.removeItem("discordUser")
-      location.reload()
+      localStorage.removeItem("discordUser");
+      location.reload();
     }
   </script>
 </body>
