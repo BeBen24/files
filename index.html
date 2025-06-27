@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,32 +13,24 @@
   <meta property="og:image" content="https://beben2.com/logo.png" />
   <meta property="og:url" content="https://beben2.com" />
   <meta property="og:type" content="website" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "BeBen2",
-    "url": "https://beben2.com",
-    "logo": "https://beben2.com/logo.png"
-  }
-  </script>
-  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet" />
-  <title>BeBen2.com</title>
+
+  <title>beben2.com</title>
   <link rel="stylesheet" href="style.css" />
+  <script defer src="script.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
 </head>
 <body>
-  <canvas id="bgCanvas"></canvas>
-
   <nav>
-    <div class="logo">BeBen2</div>
-    <div id="nav-auth"></div>
+    <div class="logo">beben2.com</div>
+    <ul class="nav-links">
+      <li><a href="/">דף הבית</a></li>
+      <li id="auth-button"></li>
+    </ul>
   </nav>
 
   <main>
     <h1>beben2.com</h1>
-    <p>האתר בעבודה - בקרוב מתחילים</p>
+    <p>האתר בעבודה.</p>
   </main>
-
-  <script src="script.js"></script>
 </body>
 </html>
