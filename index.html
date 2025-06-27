@@ -13,11 +13,148 @@
   <meta property="og:image" content="https://beben2.com/logo.png" />
   <meta property="og:url" content="https://beben2.com" />
   <meta property="og:type" content="website" />
-
   <title>beben2.com</title>
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="script.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-xB4B3ljxOBw+UEyx7k8mB9kB5kFGYWTkYQv+K2IpmcItFJoxRQE3zVY7i3Fh+0RQo9ZtdD1CdxYuEuZjU7EoVA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: white;
+      min-height: 100vh;
+      background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(30,30,30,0.8)), url('https://images.unsplash.com/photo-1522199710521-72d69614c702?auto=format&fit=crop&w=1470&q=80') no-repeat center center/cover;
+      backdrop-filter: blur(10px);
+      animation: bgMove 60s linear infinite;
+    }
+
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    nav {
+      backdrop-filter: blur(20px);
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    nav .logo {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: #00ffff;
+    }
+
+    .auth {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .auth img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+    }
+
+    .logout {
+      display: none;
+      position: absolute;
+      top: 120%;
+      background: rgba(0,0,0,0.6);
+      padding: 8px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .auth:hover .logout {
+      display: block;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding-top: 20vh;
+    }
+
+    main h1 {
+      font-size: 3.5rem;
+      background: linear-gradient(to right, #00c3ff, #ffff1c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    main p {
+      margin-top: 1rem;
+      font-size: 1.3rem;
+      color: #e0e0e0;
+    }
+  </style>
+  <script defer>
+    const clientId = '1388210958702215329';
+    const redirectUri = encodeURIComponent('https://beben2.com/auth/discord/callback');
+    const authUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify`;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const authButton = document.getElementById('auth-button');
+      const user = JSON.parse(localStorage.getItem('discord_user'));
+
+      if (user && user.username && user.avatar && user.id) {
+        authButton.innerHTML = `
+          <div class="auth">
+            <img src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png" alt="${user.username}" />
+            ${user.username}
+            <div class="logout" onclick="logout()">התנתק</div>
+          </div>
+        `;
+      } else {
+        authButton.innerHTML = `
+          <a href="${authUrl}" style="display: flex; align-items: center; gap: 8px;">
+            <i class="fab fa-discord"></i>
+            התחבר עם דיסקורד
+          </a>
+        `;
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('discord_user');
+      location.reload();
+    }
+  </script>
 </head>
 <body>
   <nav>
@@ -27,7 +164,6 @@
       <li id="auth-button"></li>
     </ul>
   </nav>
-
   <main>
     <h1>beben2.com</h1>
     <p>האתר בעבודה.</p>
