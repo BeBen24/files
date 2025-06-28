@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,160 +13,219 @@
   <meta property="og:image" content="https://beben2.com/logo.png" />
   <meta property="og:url" content="https://beben2.com" />
   <meta property="og:type" content="website" />
-  <title>beben2.com</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-xB4B3ljxOBw+UEyx7k8mB9kB5kFGYWTkYQv+K2IpmcItFJoxRQE3zVY7i3Fh+0RQo9ZtdD1CdxYuEuZjU7EoVA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "BeBen2",
+    "url": "https://beben2.com",
+    "logo": "https://beben2.com/logo.png"
+  }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
+  <title>BeBen2</title>
   <style>
-    * {
+    html, body {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      height: 100%;
+      background: #000000;
       color: white;
-      min-height: 100vh;
-      background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(30,30,30,0.8)), url('https://images.unsplash.com/photo-1522199710521-72d69614c702?auto=format&fit=crop&w=1470&q=80') no-repeat center center/cover;
-      backdrop-filter: blur(10px);
-      animation: bgMove 60s linear infinite;
-    }
-
-    @keyframes bgMove {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    nav {
-      backdrop-filter: blur(20px);
-      background: rgba(0,0,0,0.4);
+      font-family: 'Assistant', sans-serif;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      padding: 1rem 2rem;
-      position: sticky;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3.5em;
+      font-weight: 700;
+      margin: 0.2em 0;
+      color: white;
+      z-index: 2;
+    }
+
+    p {
+      font-size: 1.5em;
+      font-weight: 400;
+      margin: 0.2em 0;
+      color: #ccc;
+      z-index: 2;
+    }
+
+    canvas {
+      position: absolute;
       top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    .info-btn {
+      position: relative;
+      z-index: 2;
+      margin-top: 20px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 18px;
+      font-size: 1.2em;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .info-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.05);
+    }
+
+    .modal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(25px);
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+      border-radius: 24px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s ease;
       z-index: 10;
     }
 
-    nav .logo {
-      font-size: 1.5rem;
-      font-weight: 600;
+    .modal.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
     }
 
-    .nav-links {
-      display: flex;
-      list-style: none;
-      gap: 1.5rem;
-      align-items: center;
-    }
-
-    .nav-links a {
+    .modal h2 {
+      margin-top: 0;
       color: white;
-      text-decoration: none;
-      font-weight: 500;
-      transition: 0.3s;
+      font-size: 1.8em;
     }
 
-    .nav-links a:hover {
-      color: #00ffff;
+    .modal p {
+      color: #ddd;
+      font-size: 1.1em;
+      margin-top: 10px;
     }
 
-    .auth {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      position: relative;
+    .close-btn {
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.07);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      color: white;
       cursor: pointer;
+      font-size: 1em;
+      transition: 0.3s ease;
     }
 
-    .auth img {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-    }
-
-    .logout {
-      display: none;
-      position: absolute;
-      top: 120%;
-      background: rgba(0,0,0,0.6);
-      padding: 8px 12px;
-      border-radius: 8px;
-      white-space: nowrap;
-    }
-
-    .auth:hover .logout {
-      display: block;
-    }
-
-    main {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding-top: 20vh;
-    }
-
-    main h1 {
-      font-size: 3.5rem;
-      background: linear-gradient(to right, #00c3ff, #ffff1c);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    main p {
-      margin-top: 1rem;
-      font-size: 1.3rem;
-      color: #e0e0e0;
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
     }
   </style>
-  <script defer>
-    const clientId = '1388210958702215329';
-    const redirectUri = encodeURIComponent('https://beben2.com/auth/discord/callback');
-    const authUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify`;
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const authButton = document.getElementById('auth-button');
-      const user = JSON.parse(localStorage.getItem('discord_user'));
-
-      if (user && user.username && user.avatar && user.id) {
-        authButton.innerHTML = `
-          <div class="auth">
-            <img src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png" alt="${user.username}" />
-            ${user.username}
-            <div class="logout" onclick="logout()">התנתק</div>
-          </div>
-        `;
-      } else {
-        authButton.innerHTML = `
-          <a href="${authUrl}" style="display: flex; align-items: center; gap: 8px;">
-            <i class="fab fa-discord"></i>
-            התחבר עם דיסקורד
-          </a>
-        `;
-      }
-    });
-
-    function logout() {
-      localStorage.removeItem('discord_user');
-      location.reload();
-    }
-  </script>
 </head>
 <body>
-  <nav>
-    <div class="logo">beben2.com</div>
-    <ul class="nav-links">
-      <li><a href="/">דף הבית</a></li>
-      <li id="auth-button"></li>
-    </ul>
-  </nav>
-  <main>
-    <h1>beben2.com</h1>
-    <p>האתר בעבודה.</p>
-  </main>
+  <canvas id="bgCanvas"></canvas>
+  <h1>beben2.com</h1>
+  <p>האתר בעבודה - בקרוב מתחילים</p>
+  <button class="info-btn" id="infoBtn">מידע</button>
+
+  <div class="modal" id="infoModal">
+    <h2>מה זה האתר הזה</h2>
+    <p>בקרוב מתחילים</p>
+    <button class="close-btn" id="closeBtn">סגירה</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const balls = Array.from({length: 60}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 25 + 20,
+      dx: (Math.random() - 0.5) * 0.3,
+      dy: (Math.random() - 0.5) * 0.3,
+      angle: Math.random() * Math.PI * 2
+    }));
+
+    let time = 0;
+
+    function drawGlassBall(p, lightX, lightY) {
+      p.angle += 0.01;
+      const dx = p.x - lightX;
+      const dy = p.y - lightY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const norm = Math.max(0.2, Math.min(1, 1 - dist / 600));
+      const grad = ctx.createRadialGradient(
+        p.x - p.r * Math.cos(p.angle) * 0.3,
+        p.y - p.r * Math.sin(p.angle) * 0.3,
+        p.r * 0.2,
+        p.x,
+        p.y,
+        p.r
+      );
+      grad.addColorStop(0, `rgba(255,255,255,${0.3 * norm})`);
+      grad.addColorStop(0.3, `rgba(255,255,255,${0.05 * norm})`);
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(p.x - dx * 0.05, p.y - dy * 0.05, p.r * 0.08, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${0.08 * norm})`;
+      ctx.fill();
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      time += 0.01;
+      const lightX = canvas.width / 2 + Math.sin(time) * 200;
+      const lightY = canvas.height / 2 + Math.cos(time) * 200;
+      balls.forEach(p => {
+        drawGlassBall(p, lightX, lightY);
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < p.r || p.x > canvas.width - p.r) p.dx *= -1;
+        if (p.y < p.r || p.y > canvas.height - p.r) p.dy *= -1;
+      });
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    const infoBtn = document.getElementById("infoBtn");
+    const infoModal = document.getElementById("infoModal");
+    const closeBtn = document.getElementById("closeBtn");
+
+    infoBtn.addEventListener("click", () => {
+      infoModal.classList.add("active");
+    });
+
+    closeBtn.addEventListener("click", () => {
+      infoModal.classList.remove("active");
+    });
+  </script>
 </body>
 </html>
