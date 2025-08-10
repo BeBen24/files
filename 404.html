@@ -3,143 +3,24 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>הדף לא נמצא | 404</title>
+  <title>הדף לא נמצא</title>
   <style>
-    :root {
-      --bg: #111418;
-      --panel: #1a1f24;
-      --text: #ffffff;
-      --muted: #a8b0b9;
-      --accent: #4ec9b0;
-      --shadow: 0 20px 60px rgba(0,0,0,.5);
-    }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
+    html, body {
       margin: 0;
-      background: radial-gradient(1200px 600px at 70% -10%, #1b1f24 0%, var(--bg) 60%),
-                  linear-gradient(180deg, #0f1216 0%, #0b0e12 100%);
-      color: var(--text);
-      font-family: "Rubik", system-ui, -apple-system, Segoe UI, Arial, Helvetica, sans-serif;
-      display: grid;
-      place-items: center;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
+      color: white;
+      font-family: Arial, sans-serif;
     }
-    .wrap {
-      width: min(900px, 92vw);
-      background: linear-gradient(180deg, var(--panel), #14181c);
-      border: 1px solid #232a31;
-      border-radius: 18px;
-      padding: clamp(28px, 5vw, 48px);
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
-      transform: translateY(10px);
-      animation: floatIn .7s ease-out forwards;
+    h1 {
+      font-size: clamp(32px, 6vw, 64px);
     }
-    @keyframes floatIn {
-      to { transform: translateY(0); opacity: 1; }
-      from { opacity: 0; }
-    }
-    .bg-glow {
-      position: absolute; inset: -30% -10% auto auto; width: 60vmin; height: 60vmin;
-      background: radial-gradient(circle at center, rgba(78,201,176,.18), transparent 60%);
-      filter: blur(30px); pointer-events: none;
-      animation: pulse 4s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%,100% { transform: translateY(0) scale(1); opacity: .9; }
-      50%     { transform: translateY(-6px) scale(1.03); opacity: 1; }
-    }
-    .code {
-      font-weight: 800;
-      font-size: clamp(56px, 10vw, 140px);
-      line-height: 1;
-      letter-spacing: -2px;
-      margin: 0 0 .2em;
-      background: linear-gradient(90deg, var(--text), #cfe9e2);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 0 6px 24px rgba(78,201,176,.12);
-    }
-    .title {
-      margin: 0 0 .4em;
-      font-size: clamp(26px, 4.5vw, 44px);
-      font-weight: 700;
-    }
-    .desc {
-      margin: 0 0 1.8em;
-      font-size: clamp(16px, 2.6vw, 20px);
-      color: var(--muted);
-      line-height: 1.7;
-    }
-    .actions {
-      display: flex; gap: 12px; flex-wrap: wrap;
-    }
-    .btn {
-      appearance: none; border: none;
-      padding: 14px 20px;
-      font-size: 16px; font-weight: 700;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: transform .16s ease, box-shadow .16s ease, background .2s ease, color .2s ease;
-    }
-    .btn.primary {
-      background: linear-gradient(180deg, var(--accent), #39af99);
-      color: #0b0f12;
-      box-shadow: 0 10px 30px rgba(78,201,176,.35);
-    }
-    .btn.primary:hover { transform: translateY(-1px); }
-    .btn.ghost {
-      background: transparent; color: var(--text);
-      border: 1px solid #2a323a;
-    }
-    .btn.ghost:hover {
-      background: #1b2026; transform: translateY(-1px);
-    }
-    .hint {
-      margin-top: 18px; color: var(--muted); font-size: 14px;
-    }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
   </style>
 </head>
 <body>
-  <main class="wrap" role="main" aria-labelledby="title">
-    <div class="bg-glow" aria-hidden="true"></div>
-    <div class="code" aria-hidden="true">404</div>
-    <h1 id="title" class="title">הדף לא נמצא</h1>
-    <p class="desc">
-      נראה שניסית להגיע לכתובת שלא קיימת. ייתכן שהקישור שבור או שהדף הועבר.
-    </p>
-    <div class="actions">
-      <a class="btn primary" href="/" id="homeBtn" aria-label="חזרה לדף הבית">חזרה לדף הבית</a>
-      <button class="btn ghost" id="copyUrlBtn" aria-live="polite">להעתיק את ה-URL</button>
-    </div>
-    <div class="hint">
-      קוד שגיאה <span class="mono">404</span> · <span id="path" class="mono"></span>
-    </div>
-  </main>
-
-  <script>
-    // מציג את הנתיב שביקשו
-    const pathEl = document.getElementById('path');
-    pathEl.textContent = window.location.pathname;
-
-    // העתקת ה-URL ללוח
-    const copyBtn = document.getElementById('copyUrlBtn');
-    copyBtn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(location.href);
-        copyBtn.textContent = 'ה-URL הועתק ✔';
-        setTimeout(() => (copyBtn.textContent = 'להעתיק את ה-URL'), 1800);
-      } catch {
-        copyBtn.textContent = 'נכשל בהעתקה';
-      }
-    });
-
-    // שיפור חוויית SPA (לא חובה):
-    // אם זה אתר SPA ורוצים לכוון מסלולים שבורים לבית – בטל הערות בשתי השורות הבאות.
-    // if (!location.pathname.startsWith('/404')) location.href = '/';
-  </script>
+  <h1>הדף לא נמצא</h1>
 </body>
 </html>
