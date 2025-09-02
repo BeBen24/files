@@ -255,7 +255,7 @@
     const MAX_ATTEMPTS = 5;
     const LOCK_SECONDS = 20;
     const SALT = "beben2-2025-09";
-    const HASH_REV_B64 = "=UHd1S wCesu s2BkJ5l2O2dk5 1DT ev61hPZnvTuEj cYc".replace(/\s+/g,'').split('').reverse().join('');
+    const HASH_B64 = "cYCjEuTvnZPh16veTD1tk5d2O2l5JkB2suseCwS1dHU=";
     let lockInterval = null;
 
     function isLocked() {
@@ -331,7 +331,7 @@
     async function verifyCode(input) {
       try {
         const calc = await sha256Base64(input + SALT);
-        return calc === HASH_REV_B64;
+        return calc === HASH_B64;
       } catch {
         return false;
       }
@@ -354,7 +354,7 @@
         localStorage.removeItem('attempts');
         localStorage.removeItem('lockUntil');
         statusEl.textContent = '';
-        window.location.href = 'allbutton';
+        window.location.href = 'allbutton.html';
       } else {
         addAttempt();
         const left = attemptsLeft();
