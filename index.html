@@ -25,6 +25,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
   <title>BeBen2</title>
   <style>
+    *, *::before, *::after { box-sizing: border-box; }
     html, body {
       margin: 0;
       padding: 0;
@@ -39,7 +40,6 @@
       flex-direction: column;
       text-align: center;
     }
-
     h1 {
       font-size: 3.5em;
       font-weight: 700;
@@ -47,7 +47,6 @@
       color: white;
       z-index: 2;
     }
-
     p {
       font-size: 1.5em;
       font-weight: 400;
@@ -55,14 +54,12 @@
       color: #ccc;
       z-index: 2;
     }
-
     canvas {
       position: absolute;
       top: 0;
       left: 0;
       z-index: 0;
     }
-
     .info-btn {
       position: relative;
       z-index: 2;
@@ -78,12 +75,10 @@
       cursor: pointer;
       transition: all 0.3s ease;
     }
-
     .info-btn:hover {
       background: rgba(255, 255, 255, 0.1);
       transform: scale(1.05);
     }
-
     .modal {
       position: absolute;
       top: 50%;
@@ -94,32 +89,28 @@
       box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
       border-radius: 24px;
       padding: 30px;
-      width: 90%;
-      max-width: 400px;
+      width: 92%;
+      max-width: 420px;
       opacity: 0;
       pointer-events: none;
       transition: all 0.4s ease;
       z-index: 10;
     }
-
     .modal.active {
       opacity: 1;
       pointer-events: auto;
       transform: translate(-50%, -50%) scale(1);
     }
-
     .modal h2 {
       margin-top: 0;
       color: white;
       font-size: 1.8em;
     }
-
     .modal p {
       color: #ddd;
-      font-size: 1.1em;
+      font-size: 1.05em;
       margin-top: 10px;
     }
-
     .close-btn {
       margin-top: 20px;
       background: rgba(255, 255, 255, 0.07);
@@ -131,9 +122,51 @@
       font-size: 1em;
       transition: 0.3s ease;
     }
-
-    .close-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
+    .close-btn:hover { background: rgba(255, 255, 255, 0.15); }
+    .code-form {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+      width: 100%;
+      min-width: 0;
+    }
+    .code-input {
+      width: 100%;
+      min-width: 0;
+      margin: 0 auto;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      font-size: 1.05em;
+      outline: none;
+      transition: border 0.2s ease, transform 0.12s ease;
+      text-align: right;
+    }
+    .code-input:focus {
+      border: 1px solid rgba(255,255,255,0.28);
+      transform: scale(1.01);
+    }
+    .hint {
+      font-size: 0.95em;
+      color: #bbb;
+      margin-top: 4px;
+    }
+    .error {
+      color: #ff7b7b;
+      font-size: 0.95em;
+      min-height: 1.2em;
+    }
+    .locked { color: #ffb25c; }
+    @media (max-width: 420px) {
+      .modal { padding: 22px; border-radius: 20px; }
+      h1 { font-size: 3em; }
+      p { font-size: 1.2em; }
     }
   </style>
 </head>
@@ -141,20 +174,22 @@
   <canvas id="bgCanvas"></canvas>
   <h1>beben2.com</h1>
   <p>האתר בעבודה - בקרוב מתחילים</p>
-  <button class="info-btn" id="infoBtn">מידע</button>
-
-  <div class="modal" id="infoModal">
-    <h2>מה זה האתר הזה</h2>
-    <p>בקרוב מתחילים</p>
-    <button class="close-btn" id="closeBtn">סגירה</button>
+  <button class="info-btn" id="loginBtn">כניסה</button>
+  <div class="modal" id="loginModal" aria-hidden="true" role="dialog" aria-labelledby="loginTitle">
+    <h2 id="loginTitle">כניסה</h2>
+    <p>יש להזין קוד וללחוץ Enter.</p>
+    <form id="loginForm" class="code-form" autocomplete="off">
+      <input id="codeInput" class="code-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="הקלד/י קוד" aria-label="שדה קוד" required />
+      <div id="status" class="error" aria-live="polite"></div>
+      <p class="hint">טיפ: אין צורך בכפתור — פשוט Enter.</p>
+    </form>
+    <button class="close-btn" id="closeBtn" type="button">סגירה</button>
   </div>
-
   <script>
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
     const balls = Array.from({length: 60}, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
@@ -163,9 +198,7 @@
       dy: (Math.random() - 0.5) * 0.3,
       angle: Math.random() * Math.PI * 2
     }));
-
     let time = 0;
-
     function drawGlassBall(p, lightX, lightY) {
       p.angle += 0.01;
       const dx = p.x - lightX;
@@ -192,7 +225,6 @@
       ctx.fillStyle = `rgba(255,255,255,${0.08 * norm})`;
       ctx.fill();
     }
-
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       time += 0.01;
@@ -207,24 +239,134 @@
       });
       requestAnimationFrame(animate);
     }
-
     animate();
-
     window.addEventListener('resize', () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     });
 
-    const infoBtn = document.getElementById("infoBtn");
-    const infoModal = document.getElementById("infoModal");
-    const closeBtn = document.getElementById("closeBtn");
+    const loginBtn   = document.getElementById("loginBtn");
+    const loginModal = document.getElementById("loginModal");
+    const closeBtn   = document.getElementById("closeBtn");
+    const codeInput  = document.getElementById("codeInput");
+    const loginForm  = document.getElementById("loginForm");
+    const statusEl   = document.getElementById("status");
 
-    infoBtn.addEventListener("click", () => {
-      infoModal.classList.add("active");
+    const MAX_ATTEMPTS = 5;
+    const LOCK_SECONDS = 20;
+    const SALT = "beben2-2025-09";
+    const HASH_REV_B64 = "=UHd1S wCesu s2BkJ5l2O2dk5 1DT ev61hPZnvTuEj cYc".replace(/\s+/g,'').split('').reverse().join('');
+    let lockInterval = null;
+
+    function isLocked() {
+      const until = Number(localStorage.getItem('lockUntil') || 0);
+      return Date.now() < until;
+    }
+    function lock() {
+      const until = Date.now() + LOCK_SECONDS * 1000;
+      localStorage.setItem('lockUntil', String(until));
+      localStorage.setItem('attempts', '0');
+      startLockCountdown();
+    }
+    function attemptsLeft() {
+      const at = Number(localStorage.getItem('attempts') || 0);
+      return Math.max(0, MAX_ATTEMPTS - at);
+    }
+    function addAttempt() {
+      const at = Number(localStorage.getItem('attempts') || 0) + 1;
+      localStorage.setItem('attempts', String(at));
+      if (at >= MAX_ATTEMPTS) lock();
+    }
+    function formatMs(ms) {
+      const s = Math.ceil(ms / 1000);
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return m > 0 ? `${m}:${String(r).padStart(2,'0')}` : `${r} שניות`;
+    }
+    function startLockCountdown() {
+      if (lockInterval) clearInterval(lockInterval);
+      const tick = () => {
+        const until = Number(localStorage.getItem('lockUntil') || 0);
+        const left = Math.max(0, until - Date.now());
+        if (left <= 0) {
+          clearInterval(lockInterval);
+          statusEl.textContent = '';
+          return;
+        }
+        statusEl.innerHTML = `ניסיונות מרובים. נסה שוב בעוד <span class="locked">${formatMs(left)}</span>.`;
+      };
+      tick();
+      lockInterval = setInterval(tick, 500);
+    }
+
+    function showModal() {
+      loginModal.classList.add("active");
+      loginModal.setAttribute('aria-hidden', 'false');
+      statusEl.textContent = '';
+      setTimeout(() => codeInput.focus(), 50);
+      if (isLocked()) startLockCountdown();
+    }
+    function hideModal() {
+      loginModal.classList.remove("active");
+      loginModal.setAttribute('aria-hidden', 'true');
+      codeInput.value = '';
+      statusEl.textContent = '';
+      if (lockInterval) { clearInterval(lockInterval); lockInterval = null; }
+    }
+    loginBtn.addEventListener("click", showModal);
+    closeBtn.addEventListener("click", hideModal);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && loginModal.classList.contains('active')) hideModal();
     });
 
-    closeBtn.addEventListener("click", () => {
-      infoModal.classList.remove("active");
+    async function sha256Base64(text) {
+      const enc = new TextEncoder();
+      const buf = enc.encode(text);
+      const digest = await crypto.subtle.digest('SHA-256', buf);
+      const bytes = new Uint8Array(digest);
+      let binary = '';
+      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+      return btoa(binary);
+    }
+    async function verifyCode(input) {
+      try {
+        const calc = await sha256Base64(input + SALT);
+        return calc === HASH_REV_B64;
+      } catch {
+        return false;
+      }
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (isLocked()) {
+        startLockCountdown();
+        return;
+      }
+      const code = codeInput.value.trim();
+      if (!code) {
+        statusEl.textContent = 'נא להזין קוד.';
+        return;
+      }
+      statusEl.textContent = 'בודק...';
+      const ok = await verifyCode(code);
+      if (ok) {
+        localStorage.removeItem('attempts');
+        localStorage.removeItem('lockUntil');
+        statusEl.textContent = '';
+        window.location.href = 'allbutton';
+      } else {
+        addAttempt();
+        const left = attemptsLeft();
+        statusEl.textContent = left > 0
+          ? `קוד שגוי. נותרו ${left} ניסיונות.`
+          : `מספר ניסיונות מקסימלי הושג. נסה שוב בעוד ${LOCK_SECONDS} שניות.`;
+        codeInput.style.transform = 'translateX(-4px)';
+        setTimeout(() => codeInput.style.transform = '', 120);
+      }
+    });
+    document.getElementById('codeInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') loginForm.requestSubmit();
     });
   </script>
 </body>
